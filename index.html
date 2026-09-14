@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Casa Olmué">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0F8B82">
+<meta name="theme-color" content="#0E7A6F">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
@@ -18,15 +18,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ground:#F1F4EF; --surface:#FFFFFF; --surface-2:#E7EEE5;
-    --ink:#172420; --ink-soft:#54655B; --ink-faint:#8B9990;
-    --line:#DCE3D9; --line-soft:#EAEFE6;
-    --accent:#0F8B82; --accent-ink:#FFFFFF; --accent-soft:#DFF2EF;
-    --warm:#C2622F; --warm-soft:#F8E3D6;
-    --good:#2E7A44; --good-soft:#E1F1E4;
-    --warn:#9C6A12; --warn-soft:#F8ECD3;
-    --bad:#B03B2E; --bad-soft:#F7E1DE;
-    --shadow:0 1px 2px rgba(23,36,32,.07), 0 10px 28px -14px rgba(23,36,32,.24);
+    --ground:#F5F7F3; --surface:#FFFFFF; --surface-2:#ECF0EA;
+    --ink:#15241D; --ink-soft:#48584D; --ink-faint:#84948A;
+    --line:#DCE3D7; --line-soft:#EAEEE6;
+    --accent:#0E7A6F; --accent-strong:#0A5F57; --accent-ink:#FFFFFF; --accent-soft:#DEF0EC;
+    --good:#256B3B; --good-soft:#E1F1E4;
+    --warn:#93630C; --warn-soft:#FBEBCD;
+    --bad:#A83629; --bad-soft:#F8E2DE;
+    --shadow:0 1px 2px rgba(21,36,29,.06), 0 10px 28px -14px rgba(21,36,29,.20);
     --radius:16px; --radius-sm:10px;
     --font-display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
     --font-body:'Karla',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -34,26 +33,24 @@
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --ground:#0F1B16; --surface:#182922; --surface-2:#1F332A;
-      --ink:#E9F1EC; --ink-soft:#A9BBB0; --ink-faint:#6E8177;
-      --line:#28392F; --line-soft:#203129;
-      --accent:#45BFB2; --accent-ink:#06211D; --accent-soft:#193832;
-      --warm:#E2925F; --warm-soft:#35271B;
-      --good:#79C489; --good-soft:#1D3423;
-      --warn:#E3B45A; --warn-soft:#382B16;
+      --ground:#0E1A15; --surface:#17251F; --surface-2:#1E2F27;
+      --ink:#E7F0E9; --ink-soft:#A8BBAE; --ink-faint:#6C8177;
+      --line:#27392F; --line-soft:#1F2E27;
+      --accent:#45BFB2; --accent-strong:#6DD3C6; --accent-ink:#062420; --accent-soft:#193832;
+      --good:#79C489; --good-soft:#1C3221;
+      --warn:#E3B45A; --warn-soft:#372A15;
       --bad:#E3897D; --bad-soft:#3B241F;
       --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px -14px rgba(0,0,0,.55);
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"]{
-    --ground:#0F1B16; --surface:#182922; --surface-2:#1F332A;
-    --ink:#E9F1EC; --ink-soft:#A9BBB0; --ink-faint:#6E8177;
-    --line:#28392F; --line-soft:#203129;
-    --accent:#45BFB2; --accent-ink:#06211D; --accent-soft:#193832;
-    --warm:#E2925F; --warm-soft:#35271B;
-    --good:#79C489; --good-soft:#1D3423;
-    --warn:#E3B45A; --warn-soft:#382B16;
+    --ground:#0E1A15; --surface:#17251F; --surface-2:#1E2F27;
+    --ink:#E7F0E9; --ink-soft:#A8BBAE; --ink-faint:#6C8177;
+    --line:#27392F; --line-soft:#1F2E27;
+    --accent:#45BFB2; --accent-strong:#6DD3C6; --accent-ink:#062420; --accent-soft:#193832;
+    --good:#79C489; --good-soft:#1C3221;
+    --warn:#E3B45A; --warn-soft:#372A15;
     --bad:#E3897D; --bad-soft:#3B241F;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px -14px rgba(0,0,0,.55);
     color-scheme: dark;
@@ -133,7 +130,6 @@
     font-size:.76rem; font-weight:700; letter-spacing:.01em; white-space:nowrap;
   }
   .pill-accent{background:var(--accent-soft); color:var(--accent);}
-  .pill-warm{background:var(--warm-soft); color:var(--warm);}
   .pill-good{background:var(--good-soft); color:var(--good);}
   .pill-warn{background:var(--warn-soft); color:var(--warn);}
   .pill-bad{background:var(--bad-soft); color:var(--bad);}
@@ -147,7 +143,6 @@
   }
   .btn:active{transform:translateY(1px);}
   .btn-primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
-  .btn-warm{background:var(--warm); border-color:var(--warm); color:#fff;}
   .btn-ghost{background:transparent; border-color:transparent; color:var(--accent); padding:8px 6px;}
   .btn-danger{background:transparent; border-color:var(--bad-soft); color:var(--bad);}
   .btn-block{width:100%;}
@@ -207,15 +202,15 @@
   .guest-stats b{display:block; color:var(--ink); font-size:.98rem; font-variant-numeric:tabular-nums;}
   .stars{display:flex; gap:3px; margin-top:10px;}
   .star-btn{background:none; border:none; padding:2px; cursor:pointer; color:var(--line);}
-  .star-btn.filled{color:var(--warm);}
+  .star-btn.filled{color:var(--warn);}
   .guest-notes{
     width:100%; margin-top:10px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2);
     padding:8px 10px; font-size:.85rem; resize:vertical; min-height:38px;
   }
 
   /* ---------- Limpieza ---------- */
-  .clean-card.urgent{border-color:var(--warm);}
-  .clean-flag{display:flex; align-items:center; gap:6px; font-size:.8rem; font-weight:700; color:var(--warm); margin-top:8px;}
+  .clean-card.urgent{border-color:var(--warn);}
+  .clean-flag{display:flex; align-items:center; gap:6px; font-size:.8rem; font-weight:700; color:var(--warn); margin-top:8px;}
   .progress-track{height:7px; background:var(--surface-2); border-radius:999px; overflow:hidden; margin-top:12px;}
   .progress-fill{height:100%; background:var(--good); border-radius:999px; transition:width .2s;}
   .checklist{display:flex; flex-direction:column; gap:2px; margin-top:12px;}
@@ -241,8 +236,8 @@
   .fab{
     position:fixed; right:18px; bottom:calc(18px + env(safe-area-inset-bottom)); z-index:25;
     display:flex; align-items:center; gap:8px; padding:14px 20px; border-radius:999px;
-    background:var(--warm); color:#fff; border:none; font-weight:700; font-size:.92rem;
-    box-shadow:0 10px 24px -8px rgba(0,0,0,.35); cursor:pointer;
+    background:var(--accent); color:var(--accent-ink); border:none; font-weight:700; font-size:.92rem;
+    box-shadow:0 10px 24px -8px rgba(10,20,17,.35); cursor:pointer;
   }
   .fab.hidden{display:none;}
 
@@ -349,6 +344,8 @@ const ICONS = {
   download:`<svg class="icon-sm" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>`,
   upload:`<svg class="icon-sm" viewBox="0 0 24 24"><path d="M12 20V7M7 12l5-5 5 5"/><path d="M4 20h16"/></svg>`,
   pool:`<svg class="icon" viewBox="0 0 24 24"><path d="M3 15.5c1.4-1 2.8-1 4.2 0s2.8 1 4.2 0 2.8-1 4.2 0 2.8 1 4.2 0" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M3 19.5c1.4-1 2.8-1 4.2 0s2.8 1 4.2 0 2.8-1 4.2 0 2.8 1 4.2 0" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M6 11.5V5.8A1.8 1.8 0 0 1 7.8 4h1.4a1.8 1.8 0 0 1 1.8 1.8v5.7" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>`,
+  receipt:`<svg class="icon" viewBox="0 0 24 24"><path d="M6 3H18V21L16.5 19.5L15 21L13.5 19.5L12 21L10.5 19.5L9 21L7.5 19.5L6 21Z"/><path d="M9 8H15M9 11.5H15M9 15H12.5"/></svg>`,
+  scale:`<svg class="icon" viewBox="0 0 24 24"><path d="M12 3v18M8 21h8"/><path d="M5 7h14M5 7l-2.5 5.5a2.7 2.7 0 0 0 5 0L5 7ZM19 7l-2.5 5.5a2.7 2.7 0 0 0 5 0L19 7Z"/></svg>`,
 };
 
 /* ============================= ESTADO ============================= */
@@ -364,11 +361,21 @@ const DEFAULT_CHECKLIST = [
   "Revisar llaves, candados y cerraduras",
   "Airear y ventilar la casa",
 ];
+const EXPENSE_CATEGORIES = [
+  "Insumos y limpieza",
+  "Mantención y reparaciones",
+  "Servicios (luz, agua, gas, internet)",
+  "Sueldos y honorarios",
+  "Marketing y publicidad",
+  "Comisiones de plataformas",
+  "Otros",
+];
 
 function defaultState(){
   return {
     version: 1,
     reservas: [],
+    gastos: [],
     huespedes: {},
     checklistTemplate: DEFAULT_CHECKLIST.slice(),
     settings: { defaultPrice: null, theme: "system" },
@@ -385,6 +392,7 @@ function loadState(){
     const base = defaultState();
     return Object.assign(base, parsed, {
       reservas: Array.isArray(parsed.reservas) ? parsed.reservas : [],
+      gastos: Array.isArray(parsed.gastos) ? parsed.gastos : [],
       huespedes: parsed.huespedes && typeof parsed.huespedes==="object" ? parsed.huespedes : {},
       checklistTemplate: Array.isArray(parsed.checklistTemplate) && parsed.checklistTemplate.length ? parsed.checklistTemplate : DEFAULT_CHECKLIST.slice(),
       settings: Object.assign({defaultPrice:null,theme:"system"}, parsed.settings||{}),
@@ -428,6 +436,57 @@ function waLink(phone, text){
   return "https://wa.me/"+d+(text?("?text="+encodeURIComponent(text)):"");
 }
 function telLink(phone){ return "tel:"+phoneDigits(phone); }
+
+/* --- RUT chileno: validación, normalización y formato --- */
+function rutDV(bodyDigits){
+  let sum = 0, mul = 2;
+  for(let i=bodyDigits.length-1; i>=0; i--){
+    sum += parseInt(bodyDigits[i],10) * mul;
+    mul = (mul===7) ? 2 : mul+1;
+  }
+  const res = 11 - (sum % 11);
+  if(res===11) return "0";
+  if(res===10) return "K";
+  return String(res);
+}
+function normalizeRut(rut){
+  const clean = (rut||"").replace(/[^0-9kK]/g,"").toUpperCase();
+  if(clean.length < 2) return "";
+  let body = clean.slice(0,-1).replace(/^0+/,"");
+  if(!body) body = "0";
+  const dv = clean.slice(-1);
+  if(!/^\d+$/.test(body)) return "";
+  return body+"-"+dv;
+}
+function isValidRut(rut){
+  const norm = normalizeRut(rut);
+  if(!norm) return false;
+  const [body, dv] = norm.split("-");
+  if(body.length < 7) return false; // RUT reales parten de ~1.000.000
+  return rutDV(body) === dv;
+}
+function formatRutDisplay(rut){
+  const norm = normalizeRut(rut);
+  if(!norm) return rut ? rut : "";
+  const [body, dv] = norm.split("-");
+  const withDots = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return withDots+"-"+dv;
+}
+/* Formatea mientras se escribe (para el input) */
+function formatRutTyping(raw){
+  const clean = (raw||"").replace(/[^0-9kK]/g,"").toUpperCase();
+  if(!clean) return "";
+  const body = clean.slice(0,-1);
+  const dv = clean.slice(-1);
+  if(!body) return dv;
+  const withDots = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return withDots+"-"+dv;
+}
+/* Clave única del huésped: usa el RUT si está y es válido; si no, cae al teléfono */
+function guestKey(r){
+  const norm = normalizeRut(r.rut);
+  return norm || phoneKey(r.phone);
+}
 function statusLabel(s){ return s==="confirmada"?"Confirmada":s==="pendiente"?"Pendiente":"Cancelada"; }
 function statusPillClass(s){ return s==="confirmada"?"pill-accent":s==="pendiente"?"pill-warn":"pill-muted"; }
 
@@ -445,11 +504,21 @@ function activeReservas(){ return state.reservas.filter(r=>r.status!=="cancelada
 function reservaBalance(r){ return Math.max(0, (r.totalPrice||0) - (r.deposit||0)); }
 
 function upsertGuestFromReserva(r){
-  const key = phoneKey(r.phone);
-  const existing = state.huespedes[key] || {};
+  const key = guestKey(r);
+  let existing = state.huespedes[key];
+  if(!existing){
+    // ¿ya existía este huésped guardado por teléfono, antes de tener RUT? fusiona sus datos.
+    const legacyKey = phoneKey(r.phone);
+    if(legacyKey !== key && state.huespedes[legacyKey]){
+      existing = state.huespedes[legacyKey];
+      delete state.huespedes[legacyKey];
+    }
+  }
+  existing = existing || {};
   state.huespedes[key] = {
     name: r.guestName,
     phone: r.phone,
+    rut: normalizeRut(r.rut) || existing.rut || "",
     score: existing.score != null ? existing.score : null,
     notas: existing.notas || "",
     updatedAt: new Date().toISOString(),
@@ -459,18 +528,19 @@ function upsertGuestFromReserva(r){
 function computeGuestStats(){
   const map = {};
   activeReservas().forEach(r=>{
-    const key = phoneKey(r.phone);
-    if(!map[key]) map[key] = { key, name:r.guestName, phone:r.phone, stays:0, totalSpent:0, lastStay:null, upcoming:false };
+    const key = guestKey(r);
+    if(!map[key]) map[key] = { key, name:r.guestName, phone:r.phone, rut:normalizeRut(r.rut), stays:0, totalSpent:0, lastStay:null, upcoming:false };
     const g = map[key];
     g.stays += 1;
     g.totalSpent += (r.totalPrice||0);
-    if(!g.lastStay || r.checkIn > g.lastStay) { g.lastStay = r.checkIn; g.name = r.guestName; g.phone = r.phone; }
+    if(!g.lastStay || r.checkIn > g.lastStay) { g.lastStay = r.checkIn; g.name = r.guestName; g.phone = r.phone; if(normalizeRut(r.rut)) g.rut = normalizeRut(r.rut); }
     if(r.checkIn >= todayISO()) g.upcoming = true;
   });
   Object.keys(map).forEach(key=>{
     const saved = state.huespedes[key];
     map[key].score = saved && saved.score != null ? saved.score : null;
     map[key].notas = saved && saved.notas ? saved.notas : "";
+    if(!map[key].rut && saved && saved.rut) map[key].rut = saved.rut;
   });
   return Object.values(map).sort((a,b)=>{
     const sa = a.score||0, sb = b.score||0;
@@ -479,22 +549,34 @@ function computeGuestStats(){
   });
 }
 
-function monthlyIncome(monthsBack){
+function monthlyFinance(monthsBack){
   const out = [];
   const now = new Date();
   for(let i=monthsBack-1;i>=0;i--){
     const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
     const key = d.getFullYear()+"-"+pad(d.getMonth()+1);
-    const label = new Intl.DateTimeFormat("es-CL",{month:"short"}).format(d).replace(".","");
-    out.push({ key, label, year:d.getFullYear(), month:d.getMonth(), total:0 });
+    let label = new Intl.DateTimeFormat("es-CL",{month:"short", year:monthsBack>12?"2-digit":undefined}).format(d).replace(".","");
+    label = label.charAt(0).toUpperCase()+label.slice(1);
+    out.push({ key, label, year:d.getFullYear(), month:d.getMonth(), income:0, expense:0 });
   }
   activeReservas().forEach(r=>{
     const d = toDate(r.checkIn);
     const key = d.getFullYear()+"-"+pad(d.getMonth()+1);
     const bucket = out.find(o=>o.key===key);
-    if(bucket) bucket.total += (r.totalPrice||0);
+    if(bucket) bucket.income += (r.totalPrice||0);
   });
+  state.gastos.forEach(g=>{
+    const d = toDate(g.date);
+    const key = d.getFullYear()+"-"+pad(d.getMonth()+1);
+    const bucket = out.find(o=>o.key===key);
+    if(bucket) bucket.expense += (g.amount||0);
+  });
+  out.forEach(o=>{ o.balance = o.income - o.expense; });
   return out;
+}
+function totalGastos(list){ return list.reduce((s,g)=>s+(g.amount||0),0); }
+function gastosEnRango(desde, hasta){
+  return state.gastos.filter(g=> (!desde || g.date>=desde) && (!hasta || g.date<=hasta) );
 }
 
 /* ============================= NAVEGACIÓN ============================= */
@@ -503,11 +585,13 @@ const TABS = [
   { id:"reservas", label:"Reservas", icon:"list" },
   { id:"clientes", label:"Clientes", icon:"people" },
   { id:"limpieza", label:"Limpieza", icon:"clipboard" },
-  { id:"ingresos", label:"Ingresos", icon:"chart" },
+  { id:"gastos", label:"Gastos", icon:"receipt" },
+  { id:"finanzas", label:"Finanzas", icon:"scale" },
 ];
 let currentTab = "calendario";
 let reservaFilter = "proximas";
 let guestSearch = "";
+let gastoFilter = "mes";
 const calState = (()=>{ const d=new Date(); return { year:d.getFullYear(), month:d.getMonth(), selected:null }; })();
 
 function renderShell(){
@@ -534,7 +618,8 @@ function render(){
   else if(currentTab==="reservas") c.innerHTML = renderReservas();
   else if(currentTab==="clientes") c.innerHTML = renderClientes();
   else if(currentTab==="limpieza") c.innerHTML = renderLimpieza();
-  else if(currentTab==="ingresos") c.innerHTML = renderIngresos();
+  else if(currentTab==="gastos") c.innerHTML = renderGastos();
+  else if(currentTab==="finanzas") c.innerHTML = renderFinanzas();
 }
 
 /* ============================= CALENDARIO ============================= */
@@ -682,7 +767,7 @@ function renderClientes(){
   let guests = computeGuestStats();
   if(guestSearch.trim()){
     const q = guestSearch.trim().toLowerCase();
-    guests = guests.filter(g => g.name.toLowerCase().includes(q) || phoneDigits(g.phone).includes(q.replace(/\D/g,"")));
+    guests = guests.filter(g => g.name.toLowerCase().includes(q) || phoneDigits(g.phone).includes(q.replace(/\D/g,"")) || (g.rut||"").toLowerCase().includes(q.replace(/\./g,"")));
   }
   const cardsHtml = guests.length ? guests.map(g=>{
     const stars = [1,2,3,4,5].map(n=>
@@ -692,7 +777,7 @@ function renderClientes(){
       <div class="guest-top">
         <div>
           <div class="res-name">${escapeHtml(g.name)}</div>
-          <div class="res-dates">${escapeHtml(g.phone||"")}</div>
+          <div class="res-dates">${escapeHtml(g.phone||"")}${g.rut?" · RUT "+escapeHtml(formatRutDisplay(g.rut)):""}</div>
         </div>
         <a class="btn btn-sm" href="${waLink(g.phone)}" target="_blank" rel="noopener">${ICONS.whatsapp}</a>
       </div>
@@ -708,7 +793,7 @@ function renderClientes(){
 
   return `
     <div class="section-head"><h2>Clientes</h2><span class="section-sub">${guests.length} huésped${guests.length===1?"":"es"}</span></div>
-    <div class="search-box">${ICONS.people}<input type="text" id="guestSearchInput" placeholder="Buscar por nombre o teléfono" value="${escapeHtml(guestSearch)}"></div>
+    <div class="search-box">${ICONS.people}<input type="text" id="guestSearchInput" placeholder="Buscar por nombre, teléfono o RUT" value="${escapeHtml(guestSearch)}"></div>
     <div class="stack">${cardsHtml}</div>
   `;
 }
@@ -752,27 +837,91 @@ function renderLimpieza(){
   `;
 }
 
-/* ============================= INGRESOS ============================= */
-function renderIngresos(){
+/* ============================= GASTOS ============================= */
+function gastoDateRangeFor(filter){
+  const today = todayISO();
+  if(filter==="mes") return [today.slice(0,7)+"-01", today];
+  if(filter==="3m") return [addDaysISO(today,-90), today];
+  if(filter==="anio") return [today.slice(0,4)+"-01-01", today];
+  return [null, null];
+}
+function renderGastos(){
+  const [desde, hasta] = gastoDateRangeFor(gastoFilter);
+  const list = gastosEnRango(desde, hasta).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const total = totalGastos(list);
+  const filters = [
+    { id:"mes", label:"Este mes" },
+    { id:"3m", label:"Últimos 3 meses" },
+    { id:"anio", label:"Este año" },
+    { id:"todas", label:"Todos" },
+  ];
+
+  const byCategory = {};
+  list.forEach(g=>{ byCategory[g.category] = (byCategory[g.category]||0) + (g.amount||0); });
+  const categoryRows = Object.entries(byCategory).sort((a,b)=>b[1]-a[1]);
+  const categoryHtml = categoryRows.length ? `<div class="card">
+      <h3 style="font-size:.9rem; margin-bottom:10px;">Por categoría</h3>
+      ${categoryRows.map(([cat,amt])=>`
+        <div class="pending-row">
+          <span>${escapeHtml(cat)}</span>
+          <strong style="font-variant-numeric:tabular-nums;">${fmtCLP(amt)}</strong>
+        </div>`).join("")}
+    </div>` : "";
+
+  const listHtml = list.length ? list.map(g=>`
+    <div class="card res-card" data-action="editGasto" data-id="${g.id}">
+      <div class="res-top">
+        <div>
+          <div class="res-name">${escapeHtml(g.description)}</div>
+          <div class="res-dates">${fmtDateShort(g.date)} · ${escapeHtml(g.category)}</div>
+        </div>
+        <strong style="font-variant-numeric:tabular-nums; white-space:nowrap;">${fmtCLP(g.amount)}</strong>
+      </div>
+      <div class="res-actions">
+        <button class="btn btn-sm btn-danger" data-action="deleteGasto" data-id="${g.id}" data-stop="1">${ICONS.trash} Eliminar</button>
+      </div>
+    </div>
+  `).join("") : `<div class="empty"><b>No hay gastos en este período</b>Toca «Nuevo gasto» para registrar el primero.</div>`;
+
+  return `
+    <div class="section-head">
+      <h2>Gastos</h2>
+      <span class="section-sub">${fmtCLP(total)} en el período</span>
+    </div>
+    <button class="btn btn-primary btn-block" style="margin-bottom:14px;" data-action="newGasto">${ICONS.plus} Nuevo gasto</button>
+    <div class="filters">
+      ${filters.map(f=>`<button class="chip${gastoFilter===f.id?" active":""}" data-action="setGastoFilter" data-filter="${f.id}">${f.label}</button>`).join("")}
+    </div>
+    ${categoryHtml}
+    <div class="stack" style="margin-top:14px;">${listHtml}</div>
+  `;
+}
+
+/* ============================= FINANZAS ============================= */
+function renderFinanzas(){
   const today = todayISO();
   const thisMonthKey = today.slice(0,7);
-  const monthly = monthlyIncome(6);
-  const maxVal = Math.max(1, ...monthly.map(m=>m.total));
-  const thisMonthTotal = (monthly.find(m=>m.key===thisMonthKey)||{}).total || 0;
+  const monthly12 = monthlyFinance(12);
+  const monthly = monthly12.slice(-6);
+  const thisMonth = monthly12.find(m=>m.key===thisMonthKey) || {income:0,expense:0,balance:0};
   const pending = activeReservas().filter(r=>reservaBalance(r)>0).sort((a,b)=>a.checkIn.localeCompare(b.checkIn));
   const pendingTotal = pending.reduce((s,r)=>s+reservaBalance(r),0);
-  const activeThisMonth = activeReservas().filter(r=>r.checkIn.slice(0,7)===thisMonthKey).length;
 
-  const barW = 40, gap = 18, chartH = 140;
+  const maxAbs = Math.max(1, ...monthly.map(m=>Math.abs(m.balance)));
+  const barW = 40, gap = 22, chartH = 170, baselineY = chartH/2;
   const svgW = monthly.length*(barW+gap);
+  const halfSpan = chartH/2 - 26;
   const bars = monthly.map((m,i)=>{
-    const h = Math.max(3, Math.round((m.total/maxVal)*(chartH-28)));
+    const h = m.balance===0 ? 0 : Math.max(3, Math.round((Math.abs(m.balance)/maxAbs) * halfSpan));
     const x = i*(barW+gap);
-    const isCur = m.key===thisMonthKey;
+    const positive = m.balance >= 0;
+    const barY = positive ? baselineY - h : baselineY;
+    const labelY = positive ? baselineY - h - 8 : baselineY + h + 16;
+    const valTxt = (positive?"+":"−")+fmtCLP(Math.abs(m.balance)).replace("$","$ ");
     return `
-      <text x="${x+barW/2}" y="${chartH-h-10}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)" font-family="Karla, sans-serif">${m.total?Math.round(m.total/1000)+"k":""}</text>
-      <rect x="${x}" y="${chartH-h}" width="${barW}" height="${h}" rx="6" fill="${isCur?"var(--warm)":"var(--accent)"}" opacity="${isCur?"1":".85"}"/>
-      <text x="${x+barW/2}" y="${chartH+18}" text-anchor="middle" font-size="11" fill="var(--ink-soft)" font-family="Karla, sans-serif" text-transform="capitalize">${m.label}</text>
+      <rect x="${x}" y="${barY}" width="${barW}" height="${h}" rx="6" fill="${positive?"var(--good)":"var(--bad)"}"/>
+      ${m.balance!==0?`<text x="${x+barW/2}" y="${labelY}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink-soft)" font-family="Karla, sans-serif">${valTxt}</text>`:""}
+      <text x="${x+barW/2}" y="${chartH+18}" text-anchor="middle" font-size="11" fill="var(--ink-soft)" font-family="Karla, sans-serif">${m.label}</text>
     `;
   }).join("");
 
@@ -787,25 +936,47 @@ function renderIngresos(){
         <button class="btn btn-sm" data-action="markPaid" data-id="${r.id}">Marcar pagado</button>
       </div>
     </div>
-  `).join("") : `<p class="section-sub">No hay saldos pendientes. 🎉</p>`;
+  `).join("") : `<p class="section-sub">No hay saldos pendientes.</p>`;
+
+  const tableHtml = monthly12.slice().reverse().map(m=>`
+    <div class="pending-row">
+      <span>${m.label}</span>
+      <span style="display:flex; gap:14px; align-items:center; font-variant-numeric:tabular-nums;">
+        <span style="color:var(--ink-soft); min-width:88px; text-align:right;">${fmtCLP(m.income)}</span>
+        <span style="color:var(--ink-soft); min-width:88px; text-align:right;">${fmtCLP(m.expense)}</span>
+        <span class="pill ${m.balance>=0?"pill-good":"pill-bad"}" style="min-width:96px; justify-content:flex-end;">${m.balance>=0?"+":"−"}${fmtCLP(Math.abs(m.balance))}</span>
+      </span>
+    </div>
+  `).join("");
 
   return `
-    <div class="section-head"><h2>Ingresos</h2></div>
+    <div class="section-head"><h2>Finanzas</h2></div>
     <div class="tiles">
-      <div class="tile"><div class="label">Este mes</div><div class="value">${fmtCLP(thisMonthTotal)}</div></div>
+      <div class="tile"><div class="label">Ingresos este mes</div><div class="value">${fmtCLP(thisMonth.income)}</div></div>
+      <div class="tile"><div class="label">Gastos este mes</div><div class="value">${fmtCLP(thisMonth.expense)}</div></div>
+      <div class="tile"><div class="label">Balance este mes</div><div class="value" style="color:${thisMonth.balance>=0?"var(--good)":"var(--bad)"}">${thisMonth.balance>=0?"+":"−"}${fmtCLP(Math.abs(thisMonth.balance))}</div></div>
       <div class="tile"><div class="label">Por cobrar</div><div class="value">${fmtCLP(pendingTotal)}</div></div>
-      <div class="tile"><div class="label">Reservas este mes</div><div class="value">${activeThisMonth}</div></div>
     </div>
     <div class="card chart-wrap">
-      <h3 style="font-size:.95rem; margin-bottom:14px;">Últimos 6 meses</h3>
+      <h3 style="font-size:.95rem; margin-bottom:2px;">Balance neto — últimos 6 meses</h3>
+      <p class="section-sub" style="margin-bottom:10px;">Ingresos menos gastos, por mes</p>
       <div style="overflow-x:auto;">
-        <svg viewBox="0 0 ${svgW} ${chartH+34}" width="${svgW}" height="${chartH+34}" style="max-width:100%;">
+        <svg viewBox="0 0 ${svgW} ${chartH+30}" width="${svgW}" height="${chartH+30}" style="max-width:100%;">
+          <line x1="0" y1="${baselineY}" x2="${svgW}" y2="${baselineY}" stroke="var(--line)" stroke-width="1"/>
           ${bars}
         </svg>
       </div>
     </div>
+    <div class="card" style="margin-bottom:18px;">
+      <h3 style="font-size:.95rem; margin-bottom:8px;">Balance mensual (últimos 12 meses)</h3>
+      <div class="pending-row" style="font-size:.72rem; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.03em;">
+        <span>Mes</span>
+        <span style="display:flex; gap:14px;"><span style="min-width:88px; text-align:right;">Ingresos</span><span style="min-width:88px; text-align:right;">Gastos</span><span style="min-width:96px; text-align:right;">Balance</span></span>
+      </div>
+      ${tableHtml}
+    </div>
     <div class="card">
-      <h3 style="font-size:.95rem; margin-bottom:4px;">Saldos pendientes</h3>
+      <h3 style="font-size:.95rem; margin-bottom:4px;">Saldos pendientes de reservas</h3>
       ${pendingHtml}
     </div>
   `;
@@ -824,7 +995,14 @@ function openReservaModal(id, presetCheckIn){
     </div>
     <form id="reservaForm">
       <div class="field"><label>Nombre del huésped</label><input type="text" name="guestName" required value="${editing?escapeHtml(editing.guestName):""}"></div>
-      <div class="field"><label>Teléfono (WhatsApp)</label><input type="tel" name="phone" required placeholder="+56 9 1234 5678" value="${editing?escapeHtml(editing.phone):""}"></div>
+      <div class="field-row">
+        <div class="field"><label>Teléfono (WhatsApp)</label><input type="tel" name="phone" required placeholder="+56 9 1234 5678" value="${editing?escapeHtml(editing.phone):""}"></div>
+        <div class="field">
+          <label>RUT (código único del cliente)</label>
+          <input type="text" name="rut" id="rutInput" inputmode="numeric" placeholder="12.345.678-9" value="${editing?escapeHtml(formatRutDisplay(editing.rut||"")):""}">
+          <div class="helper-text" id="rutHelper">Opcional. Sirve para identificarlo aunque cambie de número.</div>
+        </div>
+      </div>
       <div class="field-row">
         <div class="field"><label>Llegada</label><input type="date" name="checkIn" required value="${ci}"></div>
         <div class="field"><label>Salida</label><input type="date" name="checkOut" required value="${co}"></div>
@@ -851,11 +1029,30 @@ function openReservaModal(id, presetCheckIn){
     </form>
   `;
   openModal(html);
+  const rutInput = document.getElementById("rutInput");
+  const rutHelper = document.getElementById("rutHelper");
+  rutInput.addEventListener("input", ()=>{
+    const cursorWasAtEnd = rutInput.selectionEnd === rutInput.value.length;
+    rutInput.value = formatRutTyping(rutInput.value);
+    if(cursorWasAtEnd) rutInput.setSelectionRange(rutInput.value.length, rutInput.value.length);
+    if(!rutInput.value.trim()){
+      rutHelper.textContent = "Opcional. Sirve para identificarlo aunque cambie de número.";
+      rutHelper.style.color = "";
+    } else if(isValidRut(rutInput.value)){
+      rutHelper.textContent = "RUT válido.";
+      rutHelper.style.color = "var(--good)";
+    } else {
+      rutHelper.textContent = "Ese RUT no parece válido — revísalo.";
+      rutHelper.style.color = "var(--bad)";
+    }
+  });
   document.getElementById("reservaForm").addEventListener("submit", (e)=>{
     e.preventDefault();
     const fd = new FormData(e.target);
     const checkIn = fd.get("checkIn"), checkOut = fd.get("checkOut");
     if(checkOut <= checkIn){ toast("La salida debe ser después de la llegada."); return; }
+    const rutValue = fd.get("rut").trim();
+    if(rutValue && !isValidRut(rutValue)){ toast("El RUT ingresado no es válido. Corrígelo o déjalo en blanco."); return; }
     const pricePerNight = Number(fd.get("pricePerNight"))||0;
     const nights = nightsBetween(checkIn, checkOut);
     const totalPrice = nights * pricePerNight;
@@ -864,6 +1061,7 @@ function openReservaModal(id, presetCheckIn){
       Object.assign(editing, {
         guestName: fd.get("guestName").trim(),
         phone: fd.get("phone").trim(),
+        rut: normalizeRut(rutValue),
         checkIn, checkOut,
         numGuests: Number(fd.get("numGuests"))||1,
         status: fd.get("status"),
@@ -878,6 +1076,7 @@ function openReservaModal(id, presetCheckIn){
         id: uid("r"),
         guestName: fd.get("guestName").trim(),
         phone: fd.get("phone").trim(),
+        rut: normalizeRut(rutValue),
         checkIn, checkOut,
         numGuests: Number(fd.get("numGuests"))||1,
         status: fd.get("status"),
@@ -922,6 +1121,80 @@ function markPaid(id){
   r.deposit = r.totalPrice;
   saveState();
   toast("Marcado como pagado.");
+  render();
+}
+
+/* ---------- Gastos: modal y acciones ---------- */
+function openGastoModal(id){
+  const editing = id ? state.gastos.find(g=>g.id===id) : null;
+  const html = `
+    <div class="modal-head">
+      <h3>${editing ? "Editar gasto" : "Nuevo gasto"}</h3>
+      <button class="icon-btn" data-action="closeModal">${ICONS.close}</button>
+    </div>
+    <form id="gastoForm">
+      <div class="field"><label>Descripción</label><input type="text" name="description" required placeholder="Ej: Pastillas de cloro para la piscina" value="${editing?escapeHtml(editing.description):""}"></div>
+      <div class="field-row">
+        <div class="field"><label>Categoría</label>
+          <select name="category">
+            ${EXPENSE_CATEGORIES.map(c=>`<option value="${escapeHtml(c)}" ${editing&&editing.category===c?"selected":""}>${escapeHtml(c)}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field"><label>Monto</label><input type="number" name="amount" min="0" step="500" required value="${editing?editing.amount:""}"></div>
+      </div>
+      <div class="field"><label>Fecha</label><input type="date" name="date" required value="${editing?editing.date:todayISO()}"></div>
+      <div class="field"><label>Notas</label><textarea name="notes" placeholder="Opcional">${editing?escapeHtml(editing.notes||""):""}</textarea></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-block" data-action="closeModal">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-block">${editing?"Guardar cambios":"Registrar gasto"}</button>
+      </div>
+    </form>
+  `;
+  openModal(html);
+  if(editing){
+    const actions = document.querySelector("#gastoForm .modal-actions");
+    const del = document.createElement("button");
+    del.type = "button"; del.className = "btn btn-danger btn-block";
+    del.innerHTML = `${ICONS.trash} Eliminar gasto`;
+    del.addEventListener("click", ()=>{ deleteGasto(editing.id); });
+    actions.appendChild(del);
+  }
+  document.getElementById("gastoForm").addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const now = new Date().toISOString();
+    if(editing){
+      Object.assign(editing, {
+        description: fd.get("description").trim(),
+        category: fd.get("category"),
+        amount: Number(fd.get("amount"))||0,
+        date: fd.get("date"),
+        notes: fd.get("notes").trim(),
+        updatedAt: now,
+      });
+    } else {
+      state.gastos.push({
+        id: uid("g"),
+        description: fd.get("description").trim(),
+        category: fd.get("category"),
+        amount: Number(fd.get("amount"))||0,
+        date: fd.get("date"),
+        notes: fd.get("notes").trim(),
+        createdAt: now, updatedAt: now,
+      });
+    }
+    saveState();
+    closeModal();
+    toast(editing ? "Gasto actualizado." : "Gasto registrado.");
+    render();
+  });
+}
+function deleteGasto(id){
+  if(!confirm("¿Eliminar este gasto? Esta acción no se puede deshacer.")) return;
+  state.gastos = state.gastos.filter(g=>g.id!==id);
+  saveState();
+  closeModal();
+  toast("Gasto eliminado.");
   render();
 }
 
@@ -1091,6 +1364,10 @@ document.getElementById("content").addEventListener("click", (e)=>{
   else if(action==="setScore"){ setScore(el.dataset.key, Number(el.dataset.score)); }
   else if(action==="toggleCheck"){ toggleCheck(el.dataset.id, Number(el.dataset.idx)); }
   else if(action==="markPaid"){ markPaid(el.dataset.id); }
+  else if(action==="newGasto"){ openGastoModal(null); }
+  else if(action==="editGasto"){ openGastoModal(el.dataset.id); }
+  else if(action==="deleteGasto"){ e.preventDefault(); deleteGasto(el.dataset.id); }
+  else if(action==="setGastoFilter"){ gastoFilter = el.dataset.filter; render(); }
 });
 document.getElementById("content").addEventListener("input", (e)=>{
   if(e.target.id==="guestSearchInput"){ guestSearch = e.target.value; renderGuestListOnly(); }
@@ -1102,7 +1379,7 @@ function renderGuestListOnly(){
     let g = computeGuestStats();
     if(guestSearch.trim()){
       const q = guestSearch.trim().toLowerCase();
-      g = g.filter(x => x.name.toLowerCase().includes(q) || phoneDigits(x.phone).includes(q.replace(/\D/g,"")));
+      g = g.filter(x => x.name.toLowerCase().includes(q) || phoneDigits(x.phone).includes(q.replace(/\D/g,"")) || (x.rut||"").toLowerCase().includes(q.replace(/\./g,"")));
     }
     return g;
   })();
@@ -1112,7 +1389,7 @@ function renderGuestListOnly(){
     const stars = [1,2,3,4,5].map(n=>`<button class="star-btn${g.score>=n?" filled":""}" data-action="setScore" data-key="${g.key}" data-score="${n}">${ICONS.star}</button>`).join("");
     return `<div class="card">
       <div class="guest-top">
-        <div><div class="res-name">${escapeHtml(g.name)}</div><div class="res-dates">${escapeHtml(g.phone||"")}</div></div>
+        <div><div class="res-name">${escapeHtml(g.name)}</div><div class="res-dates">${escapeHtml(g.phone||"")}${g.rut?" · RUT "+escapeHtml(formatRutDisplay(g.rut)):""}</div></div>
         <a class="btn btn-sm" href="${waLink(g.phone)}" target="_blank" rel="noopener">${ICONS.whatsapp}</a>
       </div>
       <div class="guest-stats">
