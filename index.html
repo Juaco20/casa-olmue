@@ -24,19 +24,8 @@
     --font-body:'Karla',system-ui,-apple-system,'Segoe UI',sans-serif;
     color-scheme: light;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --ground:#0E1A15; --surface:#17251F; --surface-2:#1E2F27;
-      --ink:#E7F0E9; --ink-soft:#A8BBAE; --ink-faint:#6C8177;
-      --line:#27392F; --line-soft:#1F2E27;
-      --accent:#45BFB2; --accent-strong:#6DD3C6; --accent-ink:#062420; --accent-soft:#193832;
-      --good:#79C489; --good-soft:#1C3221;
-      --bad:#E3897D; --bad-soft:#3B241F;
-      --dark:#060D0A; --dark-2:#0B1512;
-      --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px -14px rgba(0,0,0,.55);
-      color-scheme: dark;
-    }
-  }
+  /* El sitio se mantiene siempre en modo claro, sin importar la configuración
+     del dispositivo del visitante, para transmitir una sensación tranquila. */
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
@@ -74,7 +63,7 @@
   .hero .ph-box img{opacity:.9;}
   .hero-overlay{position:absolute; inset:0; background:linear-gradient(180deg, rgba(9,20,16,.35) 0%, rgba(9,20,16,.55) 55%, rgba(9,20,16,.82) 100%);}
   .hero-content{position:relative; z-index:2; max-width:640px; padding:110px 20px 90px; margin:0 auto; width:100%;}
-  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:.74rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); padding:7px 14px; border-radius:999px; margin-bottom:20px; backdrop-filter:blur(4px);}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:.74rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); padding:7px 14px; border-radius:4px; margin-bottom:20px; backdrop-filter:blur(4px);}
   .hero h1{font-size:clamp(2.1rem,5vw,3.1rem); font-weight:800; margin-bottom:16px; line-height:1.08;}
   .hero p.lead{font-size:1.08rem; color:rgba(255,255,255,.86); margin-bottom:30px; max-width:48ch;}
   .cta-row{display:flex; gap:12px; flex-wrap:wrap;}
@@ -126,14 +115,20 @@
   /* ---- booking calendar ---- */
   .booking-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:26px; display:grid; gap:28px;}
   @media(min-width:900px){ .booking-card{grid-template-columns:1.1fr .9fr;} }
+  .booking-head{grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; background:linear-gradient(135deg,var(--accent-strong),var(--accent)); color:#fff; padding:18px 26px; border-radius:var(--radius) var(--radius) 0 0; margin:-26px -26px 2px;}
+  .bh-title{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
+  .bh-title .bh-icon{width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .bh-title svg{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:2;}
+  .bh-live{display:inline-flex; align-items:center; gap:7px; font-size:.72rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.32); padding:7px 13px; border-radius:999px; white-space:nowrap;}
+  .bh-live i{width:7px; height:7px; border-radius:50%; background:#7CFFCB; display:inline-block; box-shadow:0 0 0 3px rgba(124,255,203,.28);}
   .cal-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
   .cal-nav .month-label{font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
   .icon-btn{width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft);}
   .icon-btn:disabled{opacity:.35; cursor:not-allowed;}
   .icon-btn svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.9;}
-  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
   .cal-dow{text-align:center; font-size:.66rem; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.03em; padding-bottom:6px;}
-  .cal-cell{aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; border-radius:9px; font-size:.86rem; font-weight:600; position:relative;}
+  .cal-cell{aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:.86rem; font-weight:600; position:relative; transition:background .12s,color .12s;}
   .cal-cell.out{visibility:hidden;}
   .cal-cell.past,.cal-cell.busy{color:var(--ink-faint); text-decoration:line-through; text-decoration-color:var(--line);}
   .cal-cell.avail{cursor:pointer; color:var(--ink); background:var(--surface-2);}
@@ -142,9 +137,9 @@
   .cal-cell.range-start{background:var(--accent); color:var(--accent-ink); border-radius:9px 0 0 9px;}
   .cal-cell.range-end{background:var(--accent); color:var(--accent-ink); border-radius:0 9px 9px 0;}
   .cal-cell.range-start.range-end{border-radius:9px;}
-  .cal-legend{display:flex; gap:16px; flex-wrap:wrap; margin-top:16px; font-size:.76rem; color:var(--ink-soft);}
-  .cal-legend span{display:inline-flex; align-items:center; gap:6px;}
-  .cal-legend i{width:11px; height:11px; border-radius:3px; display:inline-block;}
+  .cal-legend{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; font-size:.76rem; color:var(--ink-soft);}
+  .cal-legend span{display:inline-flex; align-items:center; gap:7px; background:var(--surface-2); border:1px solid var(--line); padding:6px 12px; border-radius:999px;}
+  .cal-legend i{width:9px; height:9px; border-radius:50%; display:inline-block;}
 
   .booking-side{display:flex; flex-direction:column;}
   .booking-summary{background:var(--surface-2); border-radius:var(--radius-sm); padding:16px; margin-bottom:16px; font-size:.9rem;}
@@ -175,6 +170,15 @@
   .location-info p{color:var(--ink-soft); margin:0 0 18px;}
   .location-card iframe{width:100%; height:100%; min-height:260px; border:none; display:block;}
 
+  /* ---- qué hacer ---- */
+  .activity-grid{display:grid; gap:16px; grid-template-columns:repeat(2,1fr);}
+  @media(min-width:760px){ .activity-grid{grid-template-columns:repeat(3,1fr);} }
+  .activity-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-sm); box-shadow:var(--shadow); padding:22px;}
+  .activity-card .ac-icon{width:42px; height:42px; border-radius:11px; background:var(--accent-soft); color:var(--accent-strong); display:flex; align-items:center; justify-content:center; margin-bottom:14px;}
+  .activity-card .ac-icon svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8;}
+  .activity-card h4{font-size:1rem; font-weight:700; margin-bottom:6px;}
+  .activity-card p{font-size:.86rem; color:var(--ink-soft); margin:0; line-height:1.55;}
+
   /* ---- footer ---- */
   .site-footer{background:var(--dark); color:rgba(255,255,255,.78); margin-top:20px;}
   .footer-top{padding:52px 0 36px; display:grid; gap:36px; grid-template-columns:1.3fr 1fr 1fr;}
@@ -200,6 +204,7 @@
       <a href="#comodidades">Comodidades</a>
       <a href="#reservar">Disponibilidad</a>
       <a href="#galeria">Fotos</a>
+      <a href="#que-hacer">Qué hacer</a>
       <a href="#ubicacion">Ubicación</a>
     </div>
     <a class="admin-pill" href="admin/">
@@ -215,7 +220,7 @@
   </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="eyebrow">Olmué · Región de Valparaíso</div>
+    <div class="eyebrow">Olmué, a los pies del cerro La Campana</div>
     <h1>Tu descanso frente a la cordillera</h1>
     <p class="lead">Casa recién remodelada, disponible para arriendo por noche. Piscina privada, quincho y todo lo necesario para desconectarte con la familia o amigos.</p>
     <div class="cta-row">
@@ -228,8 +233,7 @@
   </div>
 </header>
 
-<!-- EDITA AQUÍ: reemplaza 56900000000 por el WhatsApp real (código país + número, sin +, espacios ni guiones) -->
-<a class="wa-float" href="https://wa.me/56900000000?text=Hola%2C%20quiero%20consultar%20disponibilidad%20para%20la%20Casa%20Olmu%C3%A9" target="_blank" rel="noopener" aria-label="WhatsApp">
+<a class="wa-float" href="https://wa.me/56992518539?text=Hola%2C%20quiero%20consultar%20disponibilidad%20para%20la%20Casa%20Olmu%C3%A9" target="_blank" rel="noopener" aria-label="WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2.5A9.4 9.4 0 0 0 3.6 16.9L2.5 21.5l4.7-1.2A9.4 9.4 0 1 0 12 2.5zm0 1.9a7.5 7.5 0 0 1 6.3 11.6 7.3 7.3 0 0 1-4.3 3.2 7.5 7.5 0 0 1-5.7-.8l-.3-.2-2.6.7.7-2.5-.2-.3A7.5 7.5 0 0 1 12 4.4zm-2.9 3.9c-.2 0-.5 0-.7.3-.2.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.9 4.5 3.9 2.2.9 2.7.7 3.1.7.5 0 1.6-.6 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.2-.2-.5-.3l-2-1c-.3-.1-.5-.2-.7.1l-.6.9c-.1.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.6-1.9-.1-.3 0-.4.2-.6l.4-.5c.1-.2.2-.3.2-.5.1-.2 0-.4 0-.5l-.9-2.1c-.2-.5-.4-.4-.6-.4z"/></svg>
 </a>
 
@@ -243,7 +247,7 @@
         <a class="btn btn-ghost" href="#comodidades">Descubrir más</a>
       </div>
       <div class="ph-box">
-        <img src="img/welcome.jpg" alt="Casa Olmué" onerror="this.style.display='none'">
+        <img src="img/welcome.jpg" alt="Casa Olmué" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'">
         <div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>Agrega img/welcome.jpg</div>
       </div>
     </div>
@@ -262,17 +266,17 @@
         <div class="fc-content"><span class="fc-title">Piscina privada</span><span class="fc-btn">Ver disponibilidad</span></div>
       </a>
       <a class="feature-card" href="#comodidades">
-        <div class="ph-box"><img src="img/card-quincho.jpg" alt="Quincho" onerror="this.style.display='none'"></div>
+        <div class="ph-box"><img src="img/card-quincho.jpg" alt="Quincho" onerror="this.onerror=null;this.src='img/card-piscina.jpg'"></div>
         <div class="fc-overlay"></div>
         <div class="fc-content"><span class="fc-title">Quincho</span><span class="fc-btn">Ver más</span></div>
       </a>
       <a class="feature-card" href="#galeria">
-        <div class="ph-box"><img src="img/card-casa.jpg" alt="La casa" onerror="this.style.display='none'"></div>
+        <div class="ph-box"><img src="img/card-casa.jpg" alt="La casa" onerror="this.onerror=null;this.src='img/welcome.jpg'"></div>
         <div class="fc-overlay"></div>
         <div class="fc-content"><span class="fc-title">La casa</span><span class="fc-btn">Ver fotos</span></div>
       </a>
       <a class="feature-card" href="#reservar">
-        <div class="ph-box"><img src="img/card-reservar.jpg" alt="Reservar" onerror="this.style.display='none'"></div>
+        <div class="ph-box"><img src="img/card-reservar.jpg" alt="Reservar" onerror="this.onerror=null;this.src='img/gallery-2.jpg'"></div>
         <div class="fc-overlay"></div>
         <div class="fc-content"><span class="fc-title">Reservar</span><span class="fc-btn">Solicitar fechas</span></div>
       </a>
@@ -305,6 +309,10 @@
     <h2 class="section-title">¿Cuándo quieres venir?</h2>
     <p class="section-sub">Elige tu fecha de llegada y de salida en el calendario. Las fechas tachadas ya están ocupadas. Al enviar tu solicitud, nos vamos a contactar contigo para confirmar disponibilidad — esto todavía no es una reserva confirmada.</p>
     <div class="booking-card">
+      <div class="booking-head">
+        <div class="bh-title"><span class="bh-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/></svg></span>Reserva tu estadía</div>
+        <span class="bh-live"><i></i>Disponibilidad en vivo</span>
+      </div>
       <div>
         <div class="cal-nav">
           <button class="icon-btn" id="calPrev" aria-label="Mes anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -328,12 +336,52 @@
   <div class="wrap">
     <div class="section-eyebrow">Galería</div>
     <h2 class="section-title">Fotos de la casa</h2>
-    <p class="section-sub">Estas son fotos de ejemplo — reemplázalas subiendo tus propias imágenes a la carpeta <code>img/</code> con estos nombres: gallery-1.jpg, gallery-2.jpg, gallery-3.jpg y gallery-4.jpg.</p>
+    <p class="section-sub">Un vistazo a los espacios de la casa, dentro y fuera.</p>
     <div class="gallery">
-      <div class="ph-box"><img src="img/gallery-1.jpg" alt="Foto de la casa" onerror="this.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-1.jpg</div></div>
-      <div class="ph-box"><img src="img/gallery-2.jpg" alt="Foto de la casa" onerror="this.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-2.jpg</div></div>
-      <div class="ph-box"><img src="img/gallery-3.jpg" alt="Foto de la casa" onerror="this.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-3.jpg</div></div>
-      <div class="ph-box"><img src="img/gallery-4.jpg" alt="Foto de la casa" onerror="this.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-4.jpg</div></div>
+      <div class="ph-box"><img src="img/gallery-1.jpg" alt="Foto de la casa" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-1.jpg</div></div>
+      <div class="ph-box"><img src="img/gallery-2.jpg" alt="Foto de la casa" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-2.jpg</div></div>
+      <div class="ph-box"><img src="img/gallery-3.jpg" alt="Foto de la casa" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-3.jpg</div></div>
+      <div class="ph-box"><img src="img/gallery-4.jpg" alt="Foto de la casa" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-4.jpg</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="que-hacer">
+  <div class="wrap">
+    <div class="section-eyebrow">Alrededores</div>
+    <h2 class="section-title">Qué hacer en Olmué</h2>
+    <p class="section-sub">La casa está a pasos del Parque Nacional La Campana y del pueblo, con panoramas para todos los gustos.</p>
+    <div class="activity-grid">
+      <div class="activity-card">
+        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M3 19l6-10 4 6 2-3 6 7z"/></svg></div>
+        <h4>Parque Nacional La Campana</h4>
+        <p>Reserva de la Biósfera declarada por la UNESCO, con bosque nativo y senderos para distintos niveles de exigencia.</p>
+      </div>
+      <div class="activity-card">
+        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M6 21V4m0 3l9 3-9 3"/></svg></div>
+        <h4>Sendero a la Cumbre (Sector Granizo)</h4>
+        <p>La caminata más exigente del parque, hasta la cima del Cerro La Campana, con vista al mar y a la cordillera.</p>
+      </div>
+      <div class="activity-card">
+        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M5 21c8 0 14-6 14-14V5h-2C9 5 5 11 5 19z"/><path d="M5 19l9-9"/></svg></div>
+        <h4>Sector Cajón Grande</h4>
+        <p>Una opción más tranquila para disfrutar del bosque nativo, ideal en familia o sin tanta exigencia física.</p>
+      </div>
+      <div class="activity-card">
+        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M4 9l1-5h14l1 5"/><path d="M5 9v10h14V9"/><path d="M9 19v-6h6v6"/></svg></div>
+        <h4>Plaza de Armas de Olmué</h4>
+        <p>Cafés, ferias artesanales y el ambiente típico del pueblo, a pocos minutos en auto desde la casa.</p>
+      </div>
+      <div class="activity-card">
+        <div class="ac-icon"><svg viewBox="0 0 24 24"><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="16" r="2.5"/><path d="M9.5 18V6l10-2v12"/></svg></div>
+        <h4>Festival del Huaso de Olmué</h4>
+        <p>Cada enero, el Anfiteatro El Patagual recibe este clásico evento de verano con folclore y humor chilenos.</p>
+      </div>
+      <div class="activity-card">
+        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 004 0V3M8 12v9"/><path d="M16 3c-1.5 0-2 2-2 4s.5 4 2 4v10"/></svg></div>
+        <h4>Gastronomía local</h4>
+        <p>Restaurantes campestres con comida chilena abundante y casera, ideal para después de una caminata.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -346,11 +394,13 @@
     <div class="location-card">
       <div class="location-info">
         <h3>¿Cómo llegar?</h3>
-        <!-- EDITA AQUÍ: agrega la dirección exacta o referencia si quieres compartirla -->
-        <p>Consulta la ubicación exacta al confirmar tu reserva.</p>
-        <a class="btn btn-primary" href="https://wa.me/56900000000?text=Hola%2C%20quiero%20saber%20la%20ubicaci%C3%B3n%20exacta%20de%20la%20Casa%20Olmu%C3%A9" target="_blank" rel="noopener">Preguntar por WhatsApp</a>
+        <p>Consulta la dirección exacta al confirmar tu reserva.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://wa.me/56992518539?text=Hola%2C%20quiero%20saber%20la%20ubicaci%C3%B3n%20exacta%20de%20la%20Casa%20Olmu%C3%A9" target="_blank" rel="noopener">Preguntar por WhatsApp</a>
+          <a class="btn btn-ghost" href="https://maps.app.goo.gl/CgXv7xvRura9qHru6" target="_blank" rel="noopener">Ver en Google Maps</a>
+        </div>
       </div>
-      <iframe loading="lazy" src="https://www.google.com/maps?q=Olmu%C3%A9%2C+Chile&output=embed" allowfullscreen></iframe>
+      <iframe loading="lazy" src="https://www.google.com/maps?q=-32.985359,-71.136409&output=embed" allowfullscreen></iframe>
     </div>
   </div>
 </section>
@@ -369,12 +419,13 @@
       <a href="#comodidades">Comodidades</a>
       <a href="#reservar">Disponibilidad</a>
       <a href="#galeria">Fotos</a>
+      <a href="#que-hacer">Qué hacer</a>
       <a href="#ubicacion">Ubicación</a>
     </div>
     <div class="footer-col">
       <h5>Contacto</h5>
       <!-- EDITA AQUÍ: número y correo de contacto -->
-      <a href="https://wa.me/56900000000" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="https://wa.me/56992518539" target="_blank" rel="noopener">WhatsApp</a>
       <span>Olmué, Región de Valparaíso</span>
     </div>
   </div>
@@ -496,7 +547,7 @@ function renderBookingSide(){
   const el = document.getElementById("bookingSide");
   if(!FIREBASE_CONFIGURED){
     el.innerHTML = `<div class="booking-unavailable">Muy pronto vas a poder enviar tu solicitud directo desde aquí. Mientras tanto, escríbenos por WhatsApp y te confirmamos disponibilidad.<br><br>
-      <a class="btn btn-primary" href="https://wa.me/56900000000" target="_blank" rel="noopener">Escribir por WhatsApp</a></div>`;
+      <a class="btn btn-primary" href="https://wa.me/56992518539" target="_blank" rel="noopener">Escribir por WhatsApp</a></div>`;
     return;
   }
   if(submitted){
