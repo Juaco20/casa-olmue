@@ -649,11 +649,12 @@ function renderCalendario(){
     const stay = res.find(r=>r.checkIn<=iso && r.checkOut>iso);
     if(stay) occupiedNights++;
     let tags = "";
-    if(stay){
-      const arrow = iso===stay.checkIn ? "→ " : (dep ? "↺ " : "");
-      tags += `<span class="cal-tag ${stay.status}">${arrow}${escapeHtml(firstName(stay.guestName))}</span>`;
-    } else if(dep){
+    if(dep && (!stay || dep.id !== stay.id)){
       tags += `<span class="cal-tag dep">${escapeHtml(firstName(dep.guestName))} →</span>`;
+    }
+    if(stay){
+      const arrow = iso===stay.checkIn ? "→ " : "";
+      tags += `<span class="cal-tag ${stay.status}">${arrow}${escapeHtml(firstName(stay.guestName))}</span>`;
     }
     const classes = ["cal-day"];
     if(iso===today) classes.push("today");
