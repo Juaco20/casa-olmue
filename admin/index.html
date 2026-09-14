@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Casa Olmué — Gestión</title>
+<title>Vive Olmué — Gestión</title>
 <meta name="description" content="Sistema de gestión de arriendo para la casa de Olmué: calendario, reservas, huéspedes y limpieza.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Casa Olmué">
+<meta name="apple-mobile-web-app-title" content="Vive Olmué">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0E7A6F">
 <link rel="manifest" href="manifest.json">
@@ -332,7 +332,7 @@
   <div class="brand">
     <div class="brand-mark" id="brandMark"></div>
     <div class="brand-text">
-      <h1>Casa Olmué</h1>
+      <h1>Vive Olmué</h1>
       <p>Gestión de arriendo</p>
     </div>
   </div>
@@ -425,7 +425,7 @@ function renderLoginScreen(err){
   el.innerHTML = `
     <div class="lock-card">
       <div class="lock-mark">${LOCK_ICON}</div>
-      <h2>Casa Olmué</h2>
+      <h2>Vive Olmué</h2>
       <p class="lock-sub">Ingresa con tu cuenta para entrar al panel.</p>
       <form id="lockLoginForm">
         <label for="lockEmailIn">Correo</label>
@@ -469,7 +469,7 @@ function resetOwnPassword(){
 
 /* ============================= ICONOS ============================= */
 const ICONS = {
-  home:`<svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5V20h12v-9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5.5h4V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  home:`<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M2 19L6 12l2.5 3L12 7l2.5 5.5L18 10l4 9H2z"/></svg>`,
   calendar:`<svg class="icon" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/></svg>`,
   list:`<svg class="icon" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>`,
   people:`<svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M2.7 20c0-3.6 2.8-6 6.3-6s6.3 2.4 6.3 6"/><circle cx="17.3" cy="9" r="2.3"/><path d="M15.8 14.3c2.6.3 4.4 2.3 4.5 5.2"/></svg>`,

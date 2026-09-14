@@ -1,6 +1,6 @@
 {
-  "name": "Casa Olmué — Gestión",
-  "short_name": "Casa Olmué",
+  "name": "Vive Olmué — Gestión",
+  "short_name": "Vive Olmué",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
