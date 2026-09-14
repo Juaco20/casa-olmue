@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Casa Olmué — Gestión</title>
+<meta name="description" content="Sistema de gestión de arriendo para la casa de Olmué: calendario, reservas, huéspedes y limpieza.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Casa Olmué">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0F8B82">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#F1F4EF; --surface:#FFFFFF; --surface-2:#E7EEE5;
+    --ink:#172420; --ink-soft:#54655B; --ink-faint:#8B9990;
+    --line:#DCE3D9; --line-soft:#EAEFE6;
+    --accent:#0F8B82; --accent-ink:#FFFFFF; --accent-soft:#DFF2EF;
+    --warm:#C2622F; --warm-soft:#F8E3D6;
+    --good:#2E7A44; --good-soft:#E1F1E4;
+    --warn:#9C6A12; --warn-soft:#F8ECD3;
+    --bad:#B03B2E; --bad-soft:#F7E1DE;
+    --shadow:0 1px 2px rgba(23,36,32,.07), 0 10px 28px -14px rgba(23,36,32,.24);
+    --radius:16px; --radius-sm:10px;
+    --font-display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-body:'Karla',system-ui,-apple-system,'Segoe UI',sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F1B16; --surface:#182922; --surface-2:#1F332A;
+      --ink:#E9F1EC; --ink-soft:#A9BBB0; --ink-faint:#6E8177;
+      --line:#28392F; --line-soft:#203129;
+      --accent:#45BFB2; --accent-ink:#06211D; --accent-soft:#193832;
+      --warm:#E2925F; --warm-soft:#35271B;
+      --good:#79C489; --good-soft:#1D3423;
+      --warn:#E3B45A; --warn-soft:#382B16;
+      --bad:#E3897D; --bad-soft:#3B241F;
+      --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px -14px rgba(0,0,0,.55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1B16; --surface:#182922; --surface-2:#1F332A;
+    --ink:#E9F1EC; --ink-soft:#A9BBB0; --ink-faint:#6E8177;
+    --line:#28392F; --line-soft:#203129;
+    --accent:#45BFB2; --accent-ink:#06211D; --accent-soft:#193832;
+    --warm:#E2925F; --warm-soft:#35271B;
+    --good:#79C489; --good-soft:#1D3423;
+    --warn:#E3B45A; --warn-soft:#382B16;
+    --bad:#E3897D; --bad-soft:#3B241F;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px -14px rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ground); color:var(--ink);
+    font-family:var(--font-body); font-size:16px; line-height:1.45;
+    -webkit-tap-highlight-color:transparent;
+    padding-bottom:calc(84px + env(safe-area-inset-bottom));
+  }
+  h1,h2,h3,.display{font-family:var(--font-display); text-wrap:balance; margin:0;}
+  button,input,select,textarea{font-family:inherit; font-size:inherit; color:inherit;}
+  .icon{width:20px;height:20px;flex:none;}
+  .icon-sm{width:16px;height:16px;}
+  svg.icon,svg.icon-sm{stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; gap:12px;
+    padding:calc(14px + env(safe-area-inset-top)) 18px 12px;
+    background:var(--ground);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:10px; flex:1; min-width:0;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:11px;background:var(--accent);
+    color:var(--accent-ink); display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .brand-text h1{font-size:1.05rem; font-weight:700;}
+  .brand-text p{margin:0; font-size:.78rem; color:var(--ink-soft);}
+  .icon-btn{
+    width:40px;height:40px;border-radius:50%; border:1px solid var(--line);
+    background:var(--surface); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--ink-soft); flex:none;
+  }
+  .icon-btn:active{background:var(--surface-2);}
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    position:sticky; top:calc(66px + env(safe-area-inset-top)); z-index:19;
+    display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+    padding:8px 12px; background:var(--ground); border-bottom:1px solid var(--line);
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    flex:none; display:flex; align-items:center; gap:7px;
+    padding:9px 16px; border-radius:999px; border:1px solid transparent;
+    background:transparent; color:var(--ink-soft); font-weight:600; font-size:.88rem;
+    cursor:pointer; white-space:nowrap;
+  }
+  .tab-btn.active{background:var(--accent-soft); color:var(--accent); border-color:var(--accent-soft);}
+  .tab-btn:active{opacity:.75;}
+
+  main{padding:18px 16px 8px; max-width:920px; margin:0 auto;}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .section-head h2{font-size:1.2rem; font-weight:700;}
+  .section-sub{color:var(--ink-soft); font-size:.85rem;}
+
+  /* ---------- Cards / generic ---------- */
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; box-shadow:var(--shadow);
+  }
+  .stack{display:flex; flex-direction:column; gap:12px;}
+  .empty{
+    text-align:center; padding:36px 20px; color:var(--ink-soft);
+    border:1.5px dashed var(--line); border-radius:var(--radius); font-size:.92rem;
+  }
+  .empty b{display:block; color:var(--ink); font-family:var(--font-display); font-size:1.02rem; margin-bottom:4px;}
+
+  .pill{
+    display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px;
+    font-size:.76rem; font-weight:700; letter-spacing:.01em; white-space:nowrap;
+  }
+  .pill-accent{background:var(--accent-soft); color:var(--accent);}
+  .pill-warm{background:var(--warm-soft); color:var(--warm);}
+  .pill-good{background:var(--good-soft); color:var(--good);}
+  .pill-warn{background:var(--warn-soft); color:var(--warn);}
+  .pill-bad{background:var(--bad-soft); color:var(--bad);}
+  .pill-muted{background:var(--surface-2); color:var(--ink-soft);}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:11px 18px; border-radius:12px; border:1px solid var(--line);
+    background:var(--surface); color:var(--ink); font-weight:700; font-size:.92rem;
+    cursor:pointer;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+  .btn-warm{background:var(--warm); border-color:var(--warm); color:#fff;}
+  .btn-ghost{background:transparent; border-color:transparent; color:var(--accent); padding:8px 6px;}
+  .btn-danger{background:transparent; border-color:var(--bad-soft); color:var(--bad);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:7px 12px; font-size:.82rem; border-radius:10px;}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+
+  /* ---------- Calendar ---------- */
+  .cal-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .cal-nav .month-label{font-family:var(--font-display); font-weight:700; font-size:1.08rem;}
+  .cal-occupancy{font-size:.8rem; color:var(--ink-soft); margin-bottom:10px;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px;}
+  .cal-dow{text-align:center; font-size:.68rem; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em; padding-bottom:4px;}
+  .cal-day{
+    position:relative; min-height:58px; border-radius:10px; border:1px solid var(--line-soft);
+    background:var(--surface); padding:5px 4px 4px; cursor:pointer; text-align:left;
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .cal-day.out{opacity:.35;}
+  .cal-day.today{border-color:var(--accent);}
+  .cal-day.selected{outline:2px solid var(--accent); outline-offset:-2px;}
+  .cal-daynum{font-size:.74rem; font-weight:700; color:var(--ink-soft); font-variant-numeric:tabular-nums;}
+  .cal-tag{
+    font-size:.62rem; font-weight:700; border-radius:5px; padding:2px 4px; line-height:1.25;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .cal-tag.confirmada{background:var(--accent-soft); color:var(--accent);}
+  .cal-tag.pendiente{background:var(--warn-soft); color:var(--warn);}
+  .cal-tag.dep{background:var(--surface-2); color:var(--ink-faint); font-weight:600;}
+  .cal-legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:.76rem; color:var(--ink-soft);}
+  .cal-legend span{display:inline-flex; align-items:center; gap:6px;}
+  .cal-legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+  .day-detail{margin-top:14px;}
+
+  /* ---------- Reservation cards ---------- */
+  .filters{display:flex; gap:7px; overflow-x:auto; padding-bottom:2px; margin-bottom:14px; scrollbar-width:none;}
+  .filters::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:none; padding:7px 14px; border-radius:999px; border:1px solid var(--line);
+    background:var(--surface); color:var(--ink-soft); font-weight:600; font-size:.82rem; cursor:pointer;
+  }
+  .chip.active{background:var(--ink); color:var(--ground); border-color:var(--ink);}
+  .res-card{cursor:pointer;}
+  .res-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+  .res-name{font-family:var(--font-display); font-weight:700; font-size:1.02rem;}
+  .res-dates{color:var(--ink-soft); font-size:.85rem; margin-top:2px; font-variant-numeric:tabular-nums;}
+  .res-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
+  .res-actions{display:flex; gap:6px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line-soft);}
+
+  /* ---------- Guests ---------- */
+  .search-box{
+    display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--line);
+    border-radius:12px; padding:10px 14px; margin-bottom:14px;
+  }
+  .search-box input{border:none; background:transparent; outline:none; flex:1; color:var(--ink);}
+  .guest-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .guest-stats{display:flex; gap:16px; margin-top:10px; font-size:.82rem; color:var(--ink-soft);}
+  .guest-stats b{display:block; color:var(--ink); font-size:.98rem; font-variant-numeric:tabular-nums;}
+  .stars{display:flex; gap:3px; margin-top:10px;}
+  .star-btn{background:none; border:none; padding:2px; cursor:pointer; color:var(--line);}
+  .star-btn.filled{color:var(--warm);}
+  .guest-notes{
+    width:100%; margin-top:10px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2);
+    padding:8px 10px; font-size:.85rem; resize:vertical; min-height:38px;
+  }
+
+  /* ---------- Limpieza ---------- */
+  .clean-card.urgent{border-color:var(--warm);}
+  .clean-flag{display:flex; align-items:center; gap:6px; font-size:.8rem; font-weight:700; color:var(--warm); margin-top:8px;}
+  .progress-track{height:7px; background:var(--surface-2); border-radius:999px; overflow:hidden; margin-top:12px;}
+  .progress-fill{height:100%; background:var(--good); border-radius:999px; transition:width .2s;}
+  .checklist{display:flex; flex-direction:column; gap:2px; margin-top:12px;}
+  .check-row{display:flex; align-items:center; gap:10px; padding:8px 2px; cursor:pointer; border-radius:8px;}
+  .check-row:active{background:var(--surface-2);}
+  .check-box{
+    width:22px;height:22px;border-radius:7px;border:1.6px solid var(--line); flex:none;
+    display:flex; align-items:center; justify-content:center; color:#fff;
+  }
+  .check-row.done .check-box{background:var(--good); border-color:var(--good);}
+  .check-row.done span{color:var(--ink-faint); text-decoration:line-through;}
+
+  /* ---------- Ingresos ---------- */
+  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:18px;}
+  .tile{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-sm); padding:14px;}
+  .tile .label{font-size:.76rem; color:var(--ink-soft); font-weight:600;}
+  .tile .value{font-family:var(--font-display); font-size:1.35rem; font-weight:700; margin-top:4px; font-variant-numeric:tabular-nums;}
+  .chart-wrap{margin-bottom:18px;}
+  .pending-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 0; border-bottom:1px solid var(--line-soft);}
+  .pending-row:last-child{border-bottom:none;}
+
+  /* ---------- FAB ---------- */
+  .fab{
+    position:fixed; right:18px; bottom:calc(18px + env(safe-area-inset-bottom)); z-index:25;
+    display:flex; align-items:center; gap:8px; padding:14px 20px; border-radius:999px;
+    background:var(--warm); color:#fff; border:none; font-weight:700; font-size:.92rem;
+    box-shadow:0 10px 24px -8px rgba(0,0,0,.35); cursor:pointer;
+  }
+  .fab.hidden{display:none;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(10,16,13,.45); z-index:40;
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .modal-backdrop.hidden{display:none;}
+  .modal{
+    background:var(--surface); width:100%; max-width:560px; max-height:92vh; overflow-y:auto;
+    border-radius:20px 20px 0 0; padding:20px 20px calc(24px + env(safe-area-inset-bottom));
+    box-shadow:var(--shadow);
+  }
+  @media(min-width:640px){
+    .modal-backdrop{align-items:center;}
+    .modal{border-radius:20px; margin:20px;}
+  }
+  .modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .modal-head h3{font-size:1.15rem; font-weight:700;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:.8rem; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
+  .field input, .field select, .field textarea{
+    width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--ink); outline:none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--accent);}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .field textarea{resize:vertical; min-height:60px;}
+  .modal-actions{display:flex; gap:10px; margin-top:18px;}
+  .helper-text{font-size:.76rem; color:var(--ink-faint); margin-top:5px;}
+  .settings-block{margin-bottom:20px;}
+  .settings-block h4{font-size:.85rem; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft); margin-bottom:10px;}
+  .theme-row{display:flex; gap:8px;}
+  .theme-row .chip{flex:1; text-align:center;}
+
+  /* ---------- Toast ---------- */
+  #toast{
+    position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--ground); padding:11px 18px; border-radius:999px; font-size:.85rem;
+    font-weight:600; z-index:60; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:420px){
+    .field-row{grid-template-columns:1fr;}
+    .cal-day{min-height:50px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" id="brandMark"></div>
+    <div class="brand-text">
+      <h1>Casa Olmué</h1>
+      <p>Gestión de arriendo</p>
+    </div>
+  </div>
+  <button class="icon-btn" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema"></button>
+  <button class="icon-btn" id="settingsBtn" title="Ajustes" aria-label="Ajustes"></button>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<main id="content"></main>
+
+<button class="fab" id="fab">
+  <span id="fabIcon"></span> Nueva reserva
+</button>
+
+<div class="modal-backdrop hidden" id="modalBackdrop">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div id="toast"></div>
+
+<input type="file" id="importInput" accept="application/json" style="display:none">
+
+<script>
+(function(){
+"use strict";
+
+/* ============================= ICONOS ============================= */
+const ICONS = {
+  home:`<svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5V20h12v-9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5.5h4V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  calendar:`<svg class="icon" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/></svg>`,
+  list:`<svg class="icon" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>`,
+  people:`<svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M2.7 20c0-3.6 2.8-6 6.3-6s6.3 2.4 6.3 6"/><circle cx="17.3" cy="9" r="2.3"/><path d="M15.8 14.3c2.6.3 4.4 2.3 4.5 5.2"/></svg>`,
+  clipboard:`<svg class="icon" viewBox="0 0 24 24"><rect x="5" y="4.3" width="14" height="17" rx="2.3"/><path d="M9 4.3V3.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v.8"/><path d="M8.3 13l2.3 2.3 4.8-4.6"/></svg>`,
+  chart:`<svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>`,
+  chevronLeft:`<svg class="icon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>`,
+  chevronRight:`<svg class="icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>`,
+  close:`<svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
+  gear:`<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 13.5c.1-.5.1-1 0-1.5l1.9-1.4-2-3.4-2.2.7a7.9 7.9 0 0 0-1.3-.75L15.4 5h-4l-.4 2.15a7.9 7.9 0 0 0-1.3.75l-2.2-.7-2 3.4L7.4 12c-.1.5-.1 1 0 1.5l-1.9 1.4 2 3.4 2.2-.7c.4.3.85.55 1.3.75L11.4 20h4l.4-2.15c.45-.2.9-.45 1.3-.75l2.2.7 2-3.4-1.9-1.4z"/></svg>`,
+  sun:`<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.3M12 19.2v2.3M4.4 4.4l1.6 1.6M18 18l1.6 1.6M2.5 12h2.3M19.2 12h2.3M4.4 19.6 6 18M18 6l1.6-1.6"/></svg>`,
+  moon:`<svg class="icon" viewBox="0 0 24 24"><path d="M20.5 14.8A8.5 8.5 0 1 1 9.2 3.5a7 7 0 0 0 11.3 11.3z"/></svg>`,
+  trash:`<svg class="icon-sm" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.7 12.2a2 2 0 0 1-2 1.8H8.7a2 2 0 0 1-2-1.8L6 7"/></svg>`,
+  edit:`<svg class="icon-sm" viewBox="0 0 24 24"><path d="M4 20l.9-3.8L15.6 5.5a1.8 1.8 0 0 1 2.6 0l1.3 1.3a1.8 1.8 0 0 1 0 2.6L8.8 20l-4 .9z"/></svg>`,
+  whatsapp:`<svg class="icon-sm" viewBox="0 0 24 24" stroke="none" fill="currentColor"><path d="M12 2.5A9.4 9.4 0 0 0 3.6 16.9L2.5 21.5l4.7-1.2A9.4 9.4 0 1 0 12 2.5zm0 1.9a7.5 7.5 0 0 1 6.3 11.6 7.3 7.3 0 0 1-4.3 3.2 7.5 7.5 0 0 1-5.7-.8l-.3-.2-2.6.7.7-2.5-.2-.3A7.5 7.5 0 0 1 12 4.4zm-2.9 3.9c-.2 0-.5 0-.7.3-.2.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.9 4.5 3.9 2.2.9 2.7.7 3.1.7.5 0 1.6-.6 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.2-.2-.5-.3l-2-1c-.3-.1-.5-.2-.7.1l-.6.9c-.1.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.6-1.9-.1-.3 0-.4.2-.6l.4-.5c.1-.2.2-.3.2-.5.1-.2 0-.4 0-.5l-.9-2.1c-.2-.5-.4-.4-.6-.4z"/></svg>`,
+  plus:`<svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>`,
+  star:`<svg class="icon" viewBox="0 0 24 24" stroke="none" fill="currentColor"><path d="M12 2.9l2.8 5.9 6.4.8-4.7 4.5 1.2 6.4L12 17.6l-5.7 2.9 1.2-6.4L2.8 9.6l6.4-.8z"/></svg>`,
+  download:`<svg class="icon-sm" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>`,
+  upload:`<svg class="icon-sm" viewBox="0 0 24 24"><path d="M12 20V7M7 12l5-5 5 5"/><path d="M4 20h16"/></svg>`,
+  pool:`<svg class="icon" viewBox="0 0 24 24"><path d="M3 15.5c1.4-1 2.8-1 4.2 0s2.8 1 4.2 0 2.8-1 4.2 0 2.8 1 4.2 0" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M3 19.5c1.4-1 2.8-1 4.2 0s2.8 1 4.2 0 2.8-1 4.2 0 2.8 1 4.2 0" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M6 11.5V5.8A1.8 1.8 0 0 1 7.8 4h1.4a1.8 1.8 0 0 1 1.8 1.8v5.7" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>`,
+};
+
+/* ============================= ESTADO ============================= */
+const STORAGE_KEY = "casaOlmueV1";
+const DEFAULT_CHECKLIST = [
+  "Cambiar sábanas y toallas",
+  "Lavar y guardar loza y utensilios",
+  "Limpiar y revisar la piscina",
+  "Limpiar el quincho y la parrilla",
+  "Reponer papel higiénico, jabón y amenities",
+  "Revisar que el wifi funcione",
+  "Sacar la basura y el reciclaje",
+  "Revisar llaves, candados y cerraduras",
+  "Airear y ventilar la casa",
+];
+
+function defaultState(){
+  return {
+    version: 1,
+    reservas: [],
+    huespedes: {},
+    checklistTemplate: DEFAULT_CHECKLIST.slice(),
+    settings: { defaultPrice: null, theme: "system" },
+  };
+}
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    const base = defaultState();
+    return Object.assign(base, parsed, {
+      reservas: Array.isArray(parsed.reservas) ? parsed.reservas : [],
+      huespedes: parsed.huespedes && typeof parsed.huespedes==="object" ? parsed.huespedes : {},
+      checklistTemplate: Array.isArray(parsed.checklistTemplate) && parsed.checklistTemplate.length ? parsed.checklistTemplate : DEFAULT_CHECKLIST.slice(),
+      settings: Object.assign({defaultPrice:null,theme:"system"}, parsed.settings||{}),
+    });
+  }catch(e){
+    console.error("No se pudo leer el almacenamiento local, se parte de datos vacíos.", e);
+    return defaultState();
+  }
+}
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){
+    toast("No se pudo guardar en este dispositivo. Haz un respaldo desde Ajustes.");
+    console.error(e);
+  }
+}
+
+/* ============================= UTILIDADES ============================= */
+function uid(prefix){ return prefix+"_"+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function todayISO(){ const d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function pad(n){ return n<10 ? "0"+n : ""+n; }
+function toDate(iso){ const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d); }
+function nightsBetween(a,b){ return Math.round((toDate(b)-toDate(a))/86400000); }
+function addDaysISO(iso,n){ const d=toDate(iso); d.setDate(d.getDate()+n); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function fmtCLP(n){ n = Number(n)||0; return new Intl.NumberFormat("es-CL",{style:"currency",currency:"CLP",maximumFractionDigits:0}).format(n); }
+function fmtDateShort(iso){ if(!iso) return "—"; return new Intl.DateTimeFormat("es-CL",{weekday:"short",day:"numeric",month:"short"}).format(toDate(iso)).replace(".", ""); }
+function fmtDateLong(iso){ if(!iso) return "—"; return new Intl.DateTimeFormat("es-CL",{weekday:"long",day:"numeric",month:"long"}).format(toDate(iso)); }
+function firstName(full){ return (full||"").trim().split(/\s+/)[0] || "—"; }
+function escapeHtml(s){ return (s==null?"":String(s)).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function phoneDigits(phone){ return (phone||"").replace(/\D/g,""); }
+function phoneKey(phone){
+  let d = phoneDigits(phone);
+  if(d.length===9 && d.startsWith("9")) d = "56"+d;
+  if(!d) d = "sin_telefono";
+  return d;
+}
+function waLink(phone, text){
+  let d = phoneDigits(phone);
+  if(d.length===9 && d.startsWith("9")) d = "56"+d;
+  return "https://wa.me/"+d+(text?("?text="+encodeURIComponent(text)):"");
+}
+function telLink(phone){ return "tel:"+phoneDigits(phone); }
+function statusLabel(s){ return s==="confirmada"?"Confirmada":s==="pendiente"?"Pendiente":"Cancelada"; }
+function statusPillClass(s){ return s==="confirmada"?"pill-accent":s==="pendiente"?"pill-warn":"pill-muted"; }
+
+let toastTimer=null;
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove("show"), 2600);
+}
+
+/* ============================= DATOS DERIVADOS ============================= */
+function activeReservas(){ return state.reservas.filter(r=>r.status!=="cancelada"); }
+
+function reservaBalance(r){ return Math.max(0, (r.totalPrice||0) - (r.deposit||0)); }
+
+function upsertGuestFromReserva(r){
+  const key = phoneKey(r.phone);
+  const existing = state.huespedes[key] || {};
+  state.huespedes[key] = {
+    name: r.guestName,
+    phone: r.phone,
+    score: existing.score != null ? existing.score : null,
+    notas: existing.notas || "",
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function computeGuestStats(){
+  const map = {};
+  activeReservas().forEach(r=>{
+    const key = phoneKey(r.phone);
+    if(!map[key]) map[key] = { key, name:r.guestName, phone:r.phone, stays:0, totalSpent:0, lastStay:null, upcoming:false };
+    const g = map[key];
+    g.stays += 1;
+    g.totalSpent += (r.totalPrice||0);
+    if(!g.lastStay || r.checkIn > g.lastStay) { g.lastStay = r.checkIn; g.name = r.guestName; g.phone = r.phone; }
+    if(r.checkIn >= todayISO()) g.upcoming = true;
+  });
+  Object.keys(map).forEach(key=>{
+    const saved = state.huespedes[key];
+    map[key].score = saved && saved.score != null ? saved.score : null;
+    map[key].notas = saved && saved.notas ? saved.notas : "";
+  });
+  return Object.values(map).sort((a,b)=>{
+    const sa = a.score||0, sb = b.score||0;
+    if(sb!==sa) return sb-sa;
+    return (b.lastStay||"").localeCompare(a.lastStay||"");
+  });
+}
+
+function monthlyIncome(monthsBack){
+  const out = [];
+  const now = new Date();
+  for(let i=monthsBack-1;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const key = d.getFullYear()+"-"+pad(d.getMonth()+1);
+    const label = new Intl.DateTimeFormat("es-CL",{month:"short"}).format(d).replace(".","");
+    out.push({ key, label, year:d.getFullYear(), month:d.getMonth(), total:0 });
+  }
+  activeReservas().forEach(r=>{
+    const d = toDate(r.checkIn);
+    const key = d.getFullYear()+"-"+pad(d.getMonth()+1);
+    const bucket = out.find(o=>o.key===key);
+    if(bucket) bucket.total += (r.totalPrice||0);
+  });
+  return out;
+}
+
+/* ============================= NAVEGACIÓN ============================= */
+const TABS = [
+  { id:"calendario", label:"Calendario", icon:"calendar" },
+  { id:"reservas", label:"Reservas", icon:"list" },
+  { id:"clientes", label:"Clientes", icon:"people" },
+  { id:"limpieza", label:"Limpieza", icon:"clipboard" },
+  { id:"ingresos", label:"Ingresos", icon:"chart" },
+];
+let currentTab = "calendario";
+let reservaFilter = "proximas";
+let guestSearch = "";
+const calState = (()=>{ const d=new Date(); return { year:d.getFullYear(), month:d.getMonth(), selected:null }; })();
+
+function renderShell(){
+  document.getElementById("brandMark").innerHTML = ICONS.home;
+  document.getElementById("themeBtn").innerHTML = ICONS.sun;
+  document.getElementById("settingsBtn").innerHTML = ICONS.gear;
+  document.getElementById("fabIcon").innerHTML = ICONS.plus;
+  const tabsEl = document.getElementById("tabs");
+  tabsEl.innerHTML = TABS.map(t=>
+    `<button class="tab-btn${t.id===currentTab?" active":""}" data-tab="${t.id}">${ICONS[t.icon]}<span>${t.label}</span></button>`
+  ).join("");
+}
+
+function switchTab(id){
+  currentTab = id;
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.tab===id));
+  document.getElementById("fab").classList.toggle("hidden", !(id==="calendario"||id==="reservas"));
+  render();
+}
+
+function render(){
+  const c = document.getElementById("content");
+  if(currentTab==="calendario") c.innerHTML = renderCalendario();
+  else if(currentTab==="reservas") c.innerHTML = renderReservas();
+  else if(currentTab==="clientes") c.innerHTML = renderClientes();
+  else if(currentTab==="limpieza") c.innerHTML = renderLimpieza();
+  else if(currentTab==="ingresos") c.innerHTML = renderIngresos();
+}
+
+/* ============================= CALENDARIO ============================= */
+const DOW = ["lun","mar","mié","jue","vie","sáb","dom"];
+function renderCalendario(){
+  const { year, month } = calState;
+  const first = new Date(year, month, 1);
+  const startOffset = (first.getDay()+6)%7; // lunes=0
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
+  const cells = [];
+  for(let i=0;i<startOffset;i++) cells.push({ day:daysInPrev-startOffset+1+i, inMonth:false, iso:null });
+  for(let d=1; d<=daysInMonth; d++){
+    const iso = year+"-"+pad(month+1)+"-"+pad(d);
+    cells.push({ day:d, inMonth:true, iso });
+  }
+  while(cells.length % 7 !== 0) cells.push({ day: cells.length, inMonth:false, iso:null });
+
+  const today = todayISO();
+  const res = activeReservas();
+  let occupiedNights = 0;
+
+  const cellsHtml = cells.map(cell=>{
+    if(!cell.inMonth) return `<div class="cal-day out"><span class="cal-daynum">${cell.day}</span></div>`;
+    const iso = cell.iso;
+    const dep = res.find(r=>r.checkOut===iso);
+    const stay = res.find(r=>r.checkIn<=iso && r.checkOut>iso);
+    if(stay) occupiedNights++;
+    let tags = "";
+    if(stay){
+      const arrow = iso===stay.checkIn ? "→ " : (dep ? "↺ " : "");
+      tags += `<span class="cal-tag ${stay.status}">${arrow}${escapeHtml(firstName(stay.guestName))}</span>`;
+    } else if(dep){
+      tags += `<span class="cal-tag dep">${escapeHtml(firstName(dep.guestName))} →</span>`;
+    }
+    const classes = ["cal-day"];
+    if(iso===today) classes.push("today");
+    if(iso===calState.selected) classes.push("selected");
+    return `<button type="button" class="${classes.join(" ")}" data-action="pickDay" data-iso="${iso}">
+      <span class="cal-daynum">${cell.day}</span>${tags}
+    </button>`;
+  }).join("");
+
+  let monthLabel = new Intl.DateTimeFormat("es-CL",{month:"long",year:"numeric"}).format(new Date(year,month,1));
+  monthLabel = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+  const pct = daysInMonth ? Math.round((occupiedNights/daysInMonth)*100) : 0;
+
+  return `
+    <div class="section-head"><h2>Calendario</h2></div>
+    <div class="card">
+      <div class="cal-nav">
+        <button class="icon-btn" data-action="prevMonth">${ICONS.chevronLeft}</button>
+        <div class="month-label">${monthLabel}</div>
+        <button class="icon-btn" data-action="nextMonth">${ICONS.chevronRight}</button>
+      </div>
+      <div class="cal-occupancy">${occupiedNights} de ${daysInMonth} noches ocupadas este mes (${pct}%)</div>
+      <div class="cal-grid">
+        ${DOW.map(d=>`<div class="cal-dow">${d}</div>`).join("")}
+        ${cellsHtml}
+      </div>
+      <div class="cal-legend">
+        <span><i style="background:var(--accent)"></i>Confirmada</span>
+        <span><i style="background:var(--warn)"></i>Pendiente</span>
+        <span><i style="background:var(--surface-2)"></i>Sale ese día</span>
+      </div>
+      ${renderDayDetail()}
+    </div>
+  `;
+}
+
+function renderDayDetail(){
+  if(!calState.selected) return "";
+  const iso = calState.selected;
+  const res = activeReservas();
+  const dep = res.find(r=>r.checkOut===iso);
+  const stay = res.find(r=>r.checkIn<=iso && r.checkOut>iso);
+  const arr = res.find(r=>r.checkIn===iso);
+  let body = "";
+  if(!dep && !stay){
+    body = `<p class="section-sub" style="margin:10px 0">Día libre.</p>
+      <button class="btn btn-primary btn-sm" data-action="newFromDay" data-iso="${iso}">${ICONS.plus} Nueva reserva desde este día</button>`;
+  } else {
+    if(dep) body += `<p style="margin:6px 0"><strong>Sale:</strong> ${escapeHtml(dep.guestName)} — <a href="${waLink(dep.phone)}" target="_blank" rel="noopener">WhatsApp</a></p>`;
+    if(arr) body += `<p style="margin:6px 0"><strong>Llega:</strong> ${escapeHtml(arr.guestName)} (${arr.numGuests} pers.) — <a href="${waLink(arr.phone)}" target="_blank" rel="noopener">WhatsApp</a></p>`;
+    else if(stay) body += `<p style="margin:6px 0"><strong>Se queda:</strong> ${escapeHtml(stay.guestName)} hasta ${fmtDateShort(stay.checkOut)}</p>`;
+    const showId = (arr||stay||dep).id;
+    body += `<button class="btn btn-sm" data-action="editReserva" data-id="${showId}">${ICONS.edit} Ver / editar reserva</button>`;
+  }
+  return `<div class="day-detail card" style="box-shadow:none; background:var(--surface-2)">
+    <strong>${fmtDateLong(iso)}</strong>
+    ${body}
+  </div>`;
+}
+
+/* ============================= RESERVAS ============================= */
+function renderReservas(){
+  const today = todayISO();
+  let list = state.reservas.slice().sort((a,b)=>a.checkIn.localeCompare(b.checkIn));
+  const filters = [
+    { id:"proximas", label:"Próximas" },
+    { id:"pasadas", label:"Pasadas" },
+    { id:"saldo", label:"Con saldo" },
+    { id:"canceladas", label:"Canceladas" },
+    { id:"todas", label:"Todas" },
+  ];
+  if(reservaFilter==="proximas") list = list.filter(r=>r.checkOut>=today && r.status!=="cancelada");
+  else if(reservaFilter==="pasadas") list = list.filter(r=>r.checkOut<today && r.status!=="cancelada").reverse();
+  else if(reservaFilter==="saldo") list = list.filter(r=>r.status!=="cancelada" && reservaBalance(r)>0);
+  else if(reservaFilter==="canceladas") list = list.filter(r=>r.status==="cancelada");
+
+  const cardsHtml = list.length ? list.map(r=>{
+    const n = nightsBetween(r.checkIn, r.checkOut);
+    const bal = reservaBalance(r);
+    return `<div class="card res-card" data-action="editReserva" data-id="${r.id}">
+      <div class="res-top">
+        <div>
+          <div class="res-name">${escapeHtml(r.guestName)}</div>
+          <div class="res-dates">${fmtDateShort(r.checkIn)} → ${fmtDateShort(r.checkOut)} · ${n} noche${n===1?"":"s"}</div>
+        </div>
+        <span class="pill ${statusPillClass(r.status)}">${statusLabel(r.status)}</span>
+      </div>
+      <div class="res-meta">
+        <span class="pill pill-muted">${r.numGuests} pers.</span>
+        <span class="pill pill-muted">${fmtCLP(r.totalPrice)}</span>
+        <span class="pill ${bal>0?"pill-warn":"pill-good"}">${bal>0?("Saldo "+fmtCLP(bal)):"Pagado"}</span>
+      </div>
+      <div class="res-actions">
+        <a class="btn btn-sm" href="${waLink(r.phone)}" target="_blank" rel="noopener" data-stop="1">${ICONS.whatsapp} WhatsApp</a>
+        <button class="btn btn-sm btn-danger" data-action="deleteReserva" data-id="${r.id}" data-stop="1">${ICONS.trash} Eliminar</button>
+      </div>
+    </div>`;
+  }).join("") : `<div class="empty"><b>No hay reservas aquí</b>Toca «Nueva reserva» para registrar la primera, o revisa otro filtro.</div>`;
+
+  return `
+    <div class="section-head"><h2>Reservas</h2><span class="section-sub">${state.reservas.length} en total</span></div>
+    <div class="filters">
+      ${filters.map(f=>`<button class="chip${reservaFilter===f.id?" active":""}" data-action="setFilter" data-filter="${f.id}">${f.label}</button>`).join("")}
+    </div>
+    <div class="stack">${cardsHtml}</div>
+  `;
+}
+
+/* ============================= CLIENTES ============================= */
+function renderClientes(){
+  let guests = computeGuestStats();
+  if(guestSearch.trim()){
+    const q = guestSearch.trim().toLowerCase();
+    guests = guests.filter(g => g.name.toLowerCase().includes(q) || phoneDigits(g.phone).includes(q.replace(/\D/g,"")));
+  }
+  const cardsHtml = guests.length ? guests.map(g=>{
+    const stars = [1,2,3,4,5].map(n=>
+      `<button class="star-btn${g.score>=n?" filled":""}" data-action="setScore" data-key="${g.key}" data-score="${n}">${ICONS.star}</button>`
+    ).join("");
+    return `<div class="card">
+      <div class="guest-top">
+        <div>
+          <div class="res-name">${escapeHtml(g.name)}</div>
+          <div class="res-dates">${escapeHtml(g.phone||"")}</div>
+        </div>
+        <a class="btn btn-sm" href="${waLink(g.phone)}" target="_blank" rel="noopener">${ICONS.whatsapp}</a>
+      </div>
+      <div class="guest-stats">
+        <div><b>${g.stays}</b>estadía${g.stays===1?"":"s"}</div>
+        <div><b>${fmtCLP(g.totalSpent)}</b>total pagado</div>
+        <div><b>${fmtDateShort(g.lastStay)}</b>última visita</div>
+      </div>
+      <div class="stars">${stars}</div>
+      <textarea class="guest-notes" placeholder="Notas sobre este huésped (ej: dejó todo impecable, trajo mascota, etc.)" data-action="setNotes" data-key="${g.key}">${escapeHtml(g.notas)}</textarea>
+    </div>`;
+  }).join("") : `<div class="empty"><b>Aún no hay huéspedes</b>Aparecerán aquí automáticamente cuando registres reservas.</div>`;
+
+  return `
+    <div class="section-head"><h2>Clientes</h2><span class="section-sub">${guests.length} huésped${guests.length===1?"":"es"}</span></div>
+    <div class="search-box">${ICONS.people}<input type="text" id="guestSearchInput" placeholder="Buscar por nombre o teléfono" value="${escapeHtml(guestSearch)}"></div>
+    <div class="stack">${cardsHtml}</div>
+  `;
+}
+
+/* ============================= LIMPIEZA ============================= */
+function renderLimpieza(){
+  const today = todayISO();
+  const limit = addDaysISO(today, 21);
+  const list = activeReservas()
+    .filter(r=>r.checkOut>=today && r.checkOut<=limit)
+    .sort((a,b)=>a.checkOut.localeCompare(b.checkOut));
+
+  const cardsHtml = list.length ? list.map(r=>{
+    const checklist = r.checklist && r.checklist.length ? r.checklist : state.checklistTemplate.map(t=>({text:t,done:false}));
+    const done = checklist.filter(c=>c.done).length;
+    const pct = checklist.length ? Math.round((done/checklist.length)*100) : 0;
+    const sameDayArrival = state.reservas.find(x=>x.status!=="cancelada" && x.checkIn===r.checkOut);
+    const isToday = r.checkOut===today;
+    return `<div class="card clean-card${sameDayArrival?" urgent":""}">
+      <div class="res-top">
+        <div>
+          <div class="res-name">${escapeHtml(r.guestName)} se va</div>
+          <div class="res-dates">${isToday?"Hoy":fmtDateLong(r.checkOut)}</div>
+        </div>
+        <span class="pill pill-muted">${done}/${checklist.length}</span>
+      </div>
+      ${sameDayArrival ? `<div class="clean-flag">⚠ Entra el mismo día: ${escapeHtml(sameDayArrival.guestName)}</div>` : ""}
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="checklist">
+        ${checklist.map((c,i)=>`
+          <div class="check-row${c.done?" done":""}" data-action="toggleCheck" data-id="${r.id}" data-idx="${i}">
+            <span class="check-box">${c.done?"✓":""}</span><span>${escapeHtml(c.text)}</span>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  }).join("") : `<div class="empty"><b>Sin salidas próximas</b>No hay huéspedes saliendo en los próximos 21 días.</div>`;
+
+  return `
+    <div class="section-head"><h2>Limpieza</h2><span class="section-sub">Próximos 21 días</span></div>
+    <div class="stack">${cardsHtml}</div>
+  `;
+}
+
+/* ============================= INGRESOS ============================= */
+function renderIngresos(){
+  const today = todayISO();
+  const thisMonthKey = today.slice(0,7);
+  const monthly = monthlyIncome(6);
+  const maxVal = Math.max(1, ...monthly.map(m=>m.total));
+  const thisMonthTotal = (monthly.find(m=>m.key===thisMonthKey)||{}).total || 0;
+  const pending = activeReservas().filter(r=>reservaBalance(r)>0).sort((a,b)=>a.checkIn.localeCompare(b.checkIn));
+  const pendingTotal = pending.reduce((s,r)=>s+reservaBalance(r),0);
+  const activeThisMonth = activeReservas().filter(r=>r.checkIn.slice(0,7)===thisMonthKey).length;
+
+  const barW = 40, gap = 18, chartH = 140;
+  const svgW = monthly.length*(barW+gap);
+  const bars = monthly.map((m,i)=>{
+    const h = Math.max(3, Math.round((m.total/maxVal)*(chartH-28)));
+    const x = i*(barW+gap);
+    const isCur = m.key===thisMonthKey;
+    return `
+      <text x="${x+barW/2}" y="${chartH-h-10}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)" font-family="Karla, sans-serif">${m.total?Math.round(m.total/1000)+"k":""}</text>
+      <rect x="${x}" y="${chartH-h}" width="${barW}" height="${h}" rx="6" fill="${isCur?"var(--warm)":"var(--accent)"}" opacity="${isCur?"1":".85"}"/>
+      <text x="${x+barW/2}" y="${chartH+18}" text-anchor="middle" font-size="11" fill="var(--ink-soft)" font-family="Karla, sans-serif" text-transform="capitalize">${m.label}</text>
+    `;
+  }).join("");
+
+  const pendingHtml = pending.length ? pending.map(r=>`
+    <div class="pending-row">
+      <div>
+        <strong>${escapeHtml(r.guestName)}</strong>
+        <div class="section-sub">${fmtDateShort(r.checkIn)}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="pill pill-warn">${fmtCLP(reservaBalance(r))}</span>
+        <button class="btn btn-sm" data-action="markPaid" data-id="${r.id}">Marcar pagado</button>
+      </div>
+    </div>
+  `).join("") : `<p class="section-sub">No hay saldos pendientes. 🎉</p>`;
+
+  return `
+    <div class="section-head"><h2>Ingresos</h2></div>
+    <div class="tiles">
+      <div class="tile"><div class="label">Este mes</div><div class="value">${fmtCLP(thisMonthTotal)}</div></div>
+      <div class="tile"><div class="label">Por cobrar</div><div class="value">${fmtCLP(pendingTotal)}</div></div>
+      <div class="tile"><div class="label">Reservas este mes</div><div class="value">${activeThisMonth}</div></div>
+    </div>
+    <div class="card chart-wrap">
+      <h3 style="font-size:.95rem; margin-bottom:14px;">Últimos 6 meses</h3>
+      <div style="overflow-x:auto;">
+        <svg viewBox="0 0 ${svgW} ${chartH+34}" width="${svgW}" height="${chartH+34}" style="max-width:100%;">
+          ${bars}
+        </svg>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:.95rem; margin-bottom:4px;">Saldos pendientes</h3>
+      ${pendingHtml}
+    </div>
+  `;
+}
+
+/* ============================= MODAL: RESERVA ============================= */
+function openReservaModal(id, presetCheckIn){
+  const editing = id ? state.reservas.find(r=>r.id===id) : null;
+  const ci = editing ? editing.checkIn : (presetCheckIn || todayISO());
+  const co = editing ? editing.checkOut : addDaysISO(ci,1);
+  const price = editing ? editing.pricePerNight : (state.settings.defaultPrice || "");
+  const html = `
+    <div class="modal-head">
+      <h3>${editing ? "Editar reserva" : "Nueva reserva"}</h3>
+      <button class="icon-btn" data-action="closeModal">${ICONS.close}</button>
+    </div>
+    <form id="reservaForm">
+      <div class="field"><label>Nombre del huésped</label><input type="text" name="guestName" required value="${editing?escapeHtml(editing.guestName):""}"></div>
+      <div class="field"><label>Teléfono (WhatsApp)</label><input type="tel" name="phone" required placeholder="+56 9 1234 5678" value="${editing?escapeHtml(editing.phone):""}"></div>
+      <div class="field-row">
+        <div class="field"><label>Llegada</label><input type="date" name="checkIn" required value="${ci}"></div>
+        <div class="field"><label>Salida</label><input type="date" name="checkOut" required value="${co}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Personas</label><input type="number" name="numGuests" min="1" max="20" required value="${editing?editing.numGuests:2}"></div>
+        <div class="field"><label>Estado</label>
+          <select name="status">
+            <option value="confirmada" ${editing&&editing.status==="confirmada"?"selected":""}>Confirmada</option>
+            <option value="pendiente" ${editing&&editing.status==="pendiente"?"selected":""}>Pendiente por confirmar</option>
+            <option value="cancelada" ${editing&&editing.status==="cancelada"?"selected":""}>Cancelada</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Precio por noche</label><input type="number" name="pricePerNight" min="0" step="1000" required value="${price}"></div>
+        <div class="field"><label>Abono pagado</label><input type="number" name="deposit" min="0" step="1000" value="${editing?editing.deposit:0}"></div>
+      </div>
+      <div class="field"><label>Notas</label><textarea name="notes" placeholder="Ej: llega en auto, alergia a mascotas, pidió cuna...">${editing?escapeHtml(editing.notes||""):""}</textarea></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-block" data-action="closeModal">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-block">${editing?"Guardar cambios":"Crear reserva"}</button>
+      </div>
+    </form>
+  `;
+  openModal(html);
+  document.getElementById("reservaForm").addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const checkIn = fd.get("checkIn"), checkOut = fd.get("checkOut");
+    if(checkOut <= checkIn){ toast("La salida debe ser después de la llegada."); return; }
+    const pricePerNight = Number(fd.get("pricePerNight"))||0;
+    const nights = nightsBetween(checkIn, checkOut);
+    const totalPrice = nights * pricePerNight;
+    const now = new Date().toISOString();
+    if(editing){
+      Object.assign(editing, {
+        guestName: fd.get("guestName").trim(),
+        phone: fd.get("phone").trim(),
+        checkIn, checkOut,
+        numGuests: Number(fd.get("numGuests"))||1,
+        status: fd.get("status"),
+        pricePerNight, totalPrice,
+        deposit: Number(fd.get("deposit"))||0,
+        notes: fd.get("notes").trim(),
+        updatedAt: now,
+      });
+      upsertGuestFromReserva(editing);
+    } else {
+      const r = {
+        id: uid("r"),
+        guestName: fd.get("guestName").trim(),
+        phone: fd.get("phone").trim(),
+        checkIn, checkOut,
+        numGuests: Number(fd.get("numGuests"))||1,
+        status: fd.get("status"),
+        pricePerNight, totalPrice,
+        deposit: Number(fd.get("deposit"))||0,
+        notes: fd.get("notes").trim(),
+        checklist: state.checklistTemplate.map(t=>({text:t, done:false})),
+        createdAt: now, updatedAt: now,
+      };
+      state.reservas.push(r);
+      upsertGuestFromReserva(r);
+    }
+    state.settings.defaultPrice = pricePerNight;
+    saveState();
+    closeModal();
+    toast(editing ? "Reserva actualizada." : "Reserva creada.");
+    render();
+  });
+  // dentro del modal de reserva, también permitir eliminar si se está editando
+  if(editing){
+    const actions = document.querySelector("#reservaForm .modal-actions");
+    const del = document.createElement("button");
+    del.type = "button"; del.className = "btn btn-danger btn-block";
+    del.innerHTML = `${ICONS.trash} Eliminar reserva`;
+    del.addEventListener("click", ()=>{ deleteReserva(editing.id); });
+    actions.appendChild(del);
+  }
+}
+
+function deleteReserva(id){
+  if(!confirm("¿Eliminar esta reserva? Esta acción no se puede deshacer.")) return;
+  state.reservas = state.reservas.filter(r=>r.id!==id);
+  saveState();
+  closeModal();
+  toast("Reserva eliminada.");
+  render();
+}
+
+function markPaid(id){
+  const r = state.reservas.find(x=>x.id===id);
+  if(!r) return;
+  r.deposit = r.totalPrice;
+  saveState();
+  toast("Marcado como pagado.");
+  render();
+}
+
+function toggleCheck(id, idx){
+  const r = state.reservas.find(x=>x.id===id);
+  if(!r) return;
+  if(!r.checklist || !r.checklist.length) r.checklist = state.checklistTemplate.map(t=>({text:t,done:false}));
+  r.checklist[idx].done = !r.checklist[idx].done;
+  saveState();
+  render();
+}
+
+function setScore(key, score){
+  const g = state.huespedes[key] || { name:"", phone:"", notas:"" };
+  g.score = (g.score===score) ? null : score; // tocar la misma estrella la quita
+  g.updatedAt = new Date().toISOString();
+  state.huespedes[key] = g;
+  saveState();
+  render();
+}
+function setNotes(key, text){
+  const g = state.huespedes[key] || { name:"", phone:"", score:null };
+  g.notas = text;
+  state.huespedes[key] = g;
+  saveState();
+}
+
+/* ============================= MODAL: AJUSTES ============================= */
+function openSettingsModal(){
+  const theme = document.documentElement.dataset.theme || "system";
+  const html = `
+    <div class="modal-head"><h3>Ajustes</h3><button class="icon-btn" data-action="closeModal">${ICONS.close}</button></div>
+
+    <div class="settings-block">
+      <h4>Tema</h4>
+      <div class="theme-row">
+        <button class="chip${theme==="light"?" active":""}" data-action="setTheme" data-theme="light">Claro</button>
+        <button class="chip${theme==="dark"?" active":""}" data-action="setTheme" data-theme="dark">Oscuro</button>
+        <button class="chip${theme==="system"?" active":""}" data-action="setTheme" data-theme="system">Automático</button>
+      </div>
+    </div>
+
+    <div class="settings-block">
+      <h4>Respaldo</h4>
+      <p class="helper-text" style="margin-bottom:10px;">Los datos se guardan solo en esta tablet. Exporta un respaldo de vez en cuando para no perderlos.</p>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-block" data-action="exportBackup">${ICONS.download} Exportar</button>
+        <button class="btn btn-block" data-action="importBackup">${ICONS.upload} Importar</button>
+      </div>
+    </div>
+
+    <div class="settings-block">
+      <h4>Checklist de limpieza</h4>
+      <p class="helper-text" style="margin-bottom:10px;">Una tarea por línea. Se aplica a las reservas nuevas.</p>
+      <textarea id="checklistEdit" style="width:100%; min-height:140px; border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--surface-2);">${escapeHtml(state.checklistTemplate.join("\n"))}</textarea>
+      <button class="btn btn-primary btn-block" style="margin-top:10px" data-action="saveChecklist">Guardar checklist</button>
+    </div>
+
+    <div class="settings-block">
+      <h4>Zona de riesgo</h4>
+      <button class="btn btn-danger btn-block" data-action="wipeData">${ICONS.trash} Borrar todos los datos de este dispositivo</button>
+    </div>
+  `;
+  openModal(html);
+}
+
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "respaldo-casa-olmue-"+todayISO()+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast("Respaldo descargado.");
+}
+
+function importBackup(){ document.getElementById("importInput").click(); }
+
+document.getElementById("importInput").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!parsed || typeof parsed!=="object") throw new Error("formato inválido");
+      if(!confirm("Esto reemplazará los datos actuales de este dispositivo por los del respaldo. ¿Continuar?")) return;
+      state = Object.assign(defaultState(), parsed);
+      saveState();
+      closeModal();
+      toast("Respaldo importado.");
+      render();
+    }catch(err){
+      toast("No se pudo leer ese archivo de respaldo.");
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+function saveChecklist(){
+  const val = document.getElementById("checklistEdit").value;
+  const tasks = val.split("\n").map(s=>s.trim()).filter(Boolean);
+  state.checklistTemplate = tasks.length ? tasks : DEFAULT_CHECKLIST.slice();
+  saveState();
+  toast("Checklist guardada.");
+}
+
+function wipeData(){
+  if(!confirm("Esto borra TODAS las reservas y huéspedes guardados en este dispositivo. ¿Seguro?")) return;
+  if(!confirm("Última confirmación: no se puede deshacer. ¿Borrar todo?")) return;
+  state = defaultState();
+  saveState();
+  closeModal();
+  toast("Datos borrados.");
+  render();
+}
+
+function setTheme(t){
+  document.documentElement.dataset.theme = t === "system" ? "" : t;
+  if(t==="system") document.documentElement.removeAttribute("data-theme");
+  localStorage.setItem("casaOlmueTheme", t);
+  openSettingsModal();
+}
+
+/* ============================= MODAL GENÉRICO ============================= */
+function openModal(html){
+  document.getElementById("modal").innerHTML = html;
+  document.getElementById("modalBackdrop").classList.remove("hidden");
+}
+function closeModal(){
+  document.getElementById("modalBackdrop").classList.add("hidden");
+  document.getElementById("modal").innerHTML = "";
+}
+
+/* ============================= EVENTOS ============================= */
+document.getElementById("tabs").addEventListener("click", (e)=>{
+  const btn = e.target.closest("[data-tab]");
+  if(btn) switchTab(btn.dataset.tab);
+});
+document.getElementById("fab").addEventListener("click", ()=>openReservaModal(null));
+document.getElementById("settingsBtn").addEventListener("click", openSettingsModal);
+document.getElementById("themeBtn").addEventListener("click", ()=>{
+  const cur = localStorage.getItem("casaOlmueTheme") || "system";
+  const next = cur==="system" ? "dark" : cur==="dark" ? "light" : "system";
+  setTheme(next);
+  closeModal();
+});
+document.getElementById("modalBackdrop").addEventListener("click", (e)=>{
+  if(e.target.id==="modalBackdrop") closeModal();
+});
+
+document.getElementById("content").addEventListener("click", (e)=>{
+  const el = e.target.closest("[data-action]");
+  if(!el) return;
+  if(el.dataset.stop) e.stopPropagation();
+  const action = el.dataset.action;
+  if(action==="prevMonth"){ calState.month--; if(calState.month<0){calState.month=11; calState.year--;} calState.selected=null; render(); }
+  else if(action==="nextMonth"){ calState.month++; if(calState.month>11){calState.month=0; calState.year++;} calState.selected=null; render(); }
+  else if(action==="pickDay"){ calState.selected = el.dataset.iso===calState.selected ? null : el.dataset.iso; render(); }
+  else if(action==="newFromDay"){ openReservaModal(null, el.dataset.iso); }
+  else if(action==="editReserva"){ openReservaModal(el.dataset.id); }
+  else if(action==="deleteReserva"){ e.preventDefault(); deleteReserva(el.dataset.id); }
+  else if(action==="setFilter"){ reservaFilter = el.dataset.filter; render(); }
+  else if(action==="setScore"){ setScore(el.dataset.key, Number(el.dataset.score)); }
+  else if(action==="toggleCheck"){ toggleCheck(el.dataset.id, Number(el.dataset.idx)); }
+  else if(action==="markPaid"){ markPaid(el.dataset.id); }
+});
+document.getElementById("content").addEventListener("input", (e)=>{
+  if(e.target.id==="guestSearchInput"){ guestSearch = e.target.value; renderGuestListOnly(); }
+});
+function renderGuestListOnly(){
+  // evita perder el foco del buscador al re-renderizar todo
+  const stack = document.querySelector("#content .stack");
+  const guests = (()=>{
+    let g = computeGuestStats();
+    if(guestSearch.trim()){
+      const q = guestSearch.trim().toLowerCase();
+      g = g.filter(x => x.name.toLowerCase().includes(q) || phoneDigits(x.phone).includes(q.replace(/\D/g,"")));
+    }
+    return g;
+  })();
+  document.querySelector(".section-sub").textContent = guests.length + " huésped" + (guests.length===1?"":"es");
+  if(!stack) return;
+  stack.innerHTML = guests.length ? guests.map(g=>{
+    const stars = [1,2,3,4,5].map(n=>`<button class="star-btn${g.score>=n?" filled":""}" data-action="setScore" data-key="${g.key}" data-score="${n}">${ICONS.star}</button>`).join("");
+    return `<div class="card">
+      <div class="guest-top">
+        <div><div class="res-name">${escapeHtml(g.name)}</div><div class="res-dates">${escapeHtml(g.phone||"")}</div></div>
+        <a class="btn btn-sm" href="${waLink(g.phone)}" target="_blank" rel="noopener">${ICONS.whatsapp}</a>
+      </div>
+      <div class="guest-stats">
+        <div><b>${g.stays}</b>estadía${g.stays===1?"":"s"}</div>
+        <div><b>${fmtCLP(g.totalSpent)}</b>total pagado</div>
+        <div><b>${fmtDateShort(g.lastStay)}</b>última visita</div>
+      </div>
+      <div class="stars">${stars}</div>
+      <textarea class="guest-notes" placeholder="Notas sobre este huésped" data-action="setNotes" data-key="${g.key}">${escapeHtml(g.notas)}</textarea>
+    </div>`;
+  }).join("") : `<div class="empty"><b>Sin resultados</b>Prueba con otro nombre o número.</div>`;
+}
+document.getElementById("content").addEventListener("focusout", (e)=>{
+  if(e.target.matches(".guest-notes")){ setNotes(e.target.dataset.key, e.target.value); }
+});
+
+document.getElementById("modal").addEventListener("click", (e)=>{
+  const el = e.target.closest("[data-action]");
+  if(!el) return;
+  const action = el.dataset.action;
+  if(action==="closeModal") closeModal();
+  else if(action==="exportBackup") exportBackup();
+  else if(action==="importBackup") importBackup();
+  else if(action==="saveChecklist") saveChecklist();
+  else if(action==="wipeData") wipeData();
+  else if(action==="setTheme") setTheme(el.dataset.theme);
+});
+
+/* ============================= INICIO ============================= */
+(function init(){
+  const savedTheme = localStorage.getItem("casaOlmueTheme");
+  if(savedTheme && savedTheme!=="system") document.documentElement.dataset.theme = savedTheme;
+  renderShell();
+  switchTab("calendario");
+})();
+
+})();
+</script>
+</body>
+</html>
