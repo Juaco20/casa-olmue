@@ -164,7 +164,25 @@
   /* ---- gallery ---- */
   .gallery{display:grid; gap:14px; grid-template-columns:repeat(2,1fr);}
   @media(min-width:640px){ .gallery{grid-template-columns:repeat(4,1fr);} }
-  .gallery .ph-box{aspect-ratio:1/1; border-radius:var(--radius-sm); border:1px solid var(--line);}
+  .gallery .ph-box{aspect-ratio:1/1; border-radius:var(--radius-sm); border:1px solid var(--line); cursor:pointer;}
+  .gallery .ph-box img{transition:transform .25s;}
+  .gallery .ph-box:hover img{transform:scale(1.04);}
+  .gallery-more{position:absolute; inset:0; background:rgba(8,16,13,.58); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.05rem; border-radius:inherit; text-align:center;}
+  .gallery-empty{color:var(--ink-soft); font-size:.92rem; grid-column:1/-1; text-align:center; padding:30px;}
+
+  /* ---- lightbox ---- */
+  .lightbox{position:fixed; inset:0; background:rgba(8,16,13,.94); z-index:200; display:flex; align-items:center; justify-content:center; padding:env(safe-area-inset-top,20px) 20px env(safe-area-inset-bottom,20px);}
+  .lightbox[hidden]{display:none;}
+  .lightbox-img{max-width:90vw; max-height:84vh; object-fit:contain; border-radius:10px; box-shadow:0 24px 70px rgba(0,0,0,.45); user-select:none;}
+  .lightbox-close,.lightbox-nav{position:absolute; width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.3); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; backdrop-filter:blur(3px);}
+  .lightbox-close:hover,.lightbox-nav:hover{background:rgba(255,255,255,.22);}
+  .lightbox-close svg,.lightbox-nav svg{width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2;}
+  .lightbox-close{top:18px; right:18px;}
+  .lightbox-nav{top:50%; transform:translateY(-50%);}
+  .lightbox-prev{left:14px;}
+  .lightbox-next{right:14px;}
+  .lightbox-counter{position:absolute; bottom:18px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,.88); font-size:.8rem; font-weight:600; background:rgba(255,255,255,.12); padding:6px 14px; border-radius:999px;}
+  @media(max-width:640px){ .lightbox-nav{width:38px; height:38px;} .lightbox-prev{left:6px;} .lightbox-next{right:6px;} }
 
   /* ---- location ---- */
   .location-card{display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden;}
@@ -230,7 +248,7 @@
         <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/></svg>
         Ver disponibilidad
       </a>
-      <a class="btn btn-ghost-light" href="#galeria">Ver fotos</a>
+      <a class="btn btn-ghost-light" href="#galeria" onclick="return openGalleryFromLink(0);">Ver fotos</a>
     </div>
   </div>
 </header>
@@ -272,7 +290,7 @@
         <div class="fc-overlay"></div>
         <div class="fc-content"><span class="fc-title">Quincho</span><span class="fc-btn">Ver más</span></div>
       </a>
-      <a class="feature-card" href="#galeria">
+      <a class="feature-card" href="#galeria" onclick="return openGalleryFromLink(0);">
         <div class="ph-box"><img src="img/card-casa.jpg" alt="La casa" onerror="this.onerror=null;this.src='img/welcome.jpg'"></div>
         <div class="fc-overlay"></div>
         <div class="fc-content"><span class="fc-title">La casa</span><span class="fc-btn">Ver fotos</span></div>
@@ -339,14 +357,17 @@
     <div class="section-eyebrow">Galería</div>
     <h2 class="section-title">Fotos de la casa</h2>
     <p class="section-sub">Un vistazo a los espacios de la casa, dentro y fuera.</p>
-    <div class="gallery">
-      <div class="ph-box"><img src="img/gallery-1.jpg" alt="Foto de la casa" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-1.jpg</div></div>
-      <div class="ph-box"><img src="img/gallery-2.jpg" alt="Foto de la casa" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-2.jpg</div></div>
-      <div class="ph-box"><img src="img/gallery-3.jpg" alt="Foto de la casa" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-3.jpg</div></div>
-      <div class="ph-box"><img src="img/gallery-4.jpg" alt="Foto de la casa" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'"><div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>gallery-4.jpg</div></div>
-    </div>
+    <div class="gallery" id="galleryGrid"></div>
   </div>
 </section>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <button type="button" class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Foto anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <img class="lightbox-img" id="lightboxImg" alt="Foto de la casa">
+  <button type="button" class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Foto siguiente"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
 
 <section id="que-hacer">
   <div class="wrap">
@@ -625,6 +646,94 @@ if(FIREBASE_CONFIGURED){
     renderCal();
   }, err=>console.error(err));
 }
+
+/* ---- gallery + lightbox ---- */
+let galleryImages = [];
+let galleryReady = false;
+let galleryIndex = 0;
+
+function probeImage(src){
+  return new Promise(resolve=>{
+    const img = new Image();
+    img.onload = ()=>resolve(src);
+    img.onerror = ()=>resolve(null);
+    img.src = src;
+  });
+}
+
+function buildGallery(){
+  const MAX_CANDIDATES = 16;
+  const candidates = [];
+  for(let i=1;i<=MAX_CANDIDATES;i++) candidates.push(`img/gallery-${i}.jpg`);
+  Promise.all(candidates.map(probeImage)).then(results=>{
+    galleryImages = results.filter(Boolean);
+    galleryReady = true;
+    renderGalleryGrid();
+  });
+}
+
+function renderGalleryGrid(){
+  const grid = document.getElementById("galleryGrid");
+  if(!grid) return;
+  if(galleryImages.length===0){
+    grid.innerHTML = `<div class="gallery-empty">Pronto vas a poder ver fotos de la casa aquí.</div>`;
+    return;
+  }
+  const visible = galleryImages.slice(0,4);
+  const extra = galleryImages.length - visible.length;
+  grid.innerHTML = visible.map((src,i)=>{
+    const showMore = (i===visible.length-1 && extra>0);
+    return `<div class="ph-box" style="position:relative" data-index="${i}">
+      <img src="${src}" alt="Foto de la casa" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;">
+      ${showMore?`<div class="gallery-more">+${extra} fotos</div>`:""}
+    </div>`;
+  }).join("");
+  grid.querySelectorAll(".ph-box").forEach(box=>{
+    box.addEventListener("click", ()=>openGallery(Number(box.dataset.index)));
+  });
+}
+
+function openGallery(index){
+  if(!galleryImages.length) return;
+  galleryIndex = ((index%galleryImages.length)+galleryImages.length)%galleryImages.length;
+  updateLightbox();
+  document.getElementById("lightbox").hidden = false;
+  document.body.style.overflow = "hidden";
+}
+function closeGallery(){
+  document.getElementById("lightbox").hidden = true;
+  document.body.style.overflow = "";
+}
+function updateLightbox(){
+  document.getElementById("lightboxImg").src = galleryImages[galleryIndex];
+  document.getElementById("lightboxCounter").textContent = `${galleryIndex+1} / ${galleryImages.length}`;
+}
+function galleryNext(){ galleryIndex=(galleryIndex+1)%galleryImages.length; updateLightbox(); }
+function galleryPrev(){ galleryIndex=(galleryIndex-1+galleryImages.length)%galleryImages.length; updateLightbox(); }
+
+window.openGalleryFromLink = function(index){
+  if(galleryReady && galleryImages.length>0){
+    openGallery(index);
+    return false;
+  }
+  return true;
+};
+
+document.getElementById("lightboxClose").addEventListener("click", closeGallery);
+document.getElementById("lightboxNext").addEventListener("click", galleryNext);
+document.getElementById("lightboxPrev").addEventListener("click", galleryPrev);
+document.getElementById("lightbox").addEventListener("click", (e)=>{
+  if(e.target.id==="lightbox") closeGallery();
+});
+document.addEventListener("keydown", (e)=>{
+  const lb = document.getElementById("lightbox");
+  if(lb.hidden) return;
+  if(e.key==="Escape") closeGallery();
+  else if(e.key==="ArrowRight") galleryNext();
+  else if(e.key==="ArrowLeft") galleryPrev();
+});
+
+buildGallery();
 })();
 </script>
 </body>
