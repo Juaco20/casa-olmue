@@ -158,6 +158,7 @@
   .booking-summary{background:var(--surface-2); border-radius:var(--radius-sm); padding:16px; margin-bottom:16px; font-size:.9rem;}
   .booking-summary b{display:block; font-size:1.02rem; margin-bottom:2px;}
   .booking-summary .muted{color:var(--ink-soft);}
+  .booking-price{margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
   .field{margin-bottom:14px;}
   .field label{display:block; font-size:.78rem; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
   .field input, .field textarea{width:100%; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--surface-2); padding:11px 13px; font-size:.95rem; color:var(--ink); font-family:inherit;}
@@ -552,6 +553,12 @@ function toDate(iso){ const [y,m,d]=iso.split("-").map(Number); return new Date(
 function nightsBetween(a,b){ return Math.round((toDate(b)-toDate(a))/86400000); }
 function isoOf(y,m,d){ return y+"-"+pad(m+1)+"-"+pad(d); }
 function fmtDateShort(iso){ return new Intl.DateTimeFormat("es-CL",{weekday:"short",day:"numeric",month:"short"}).format(toDate(iso)).replace(".", ""); }
+function rateForGuests(n){
+  if(n<=2) return 120000;
+  if(n<=4) return 160000;
+  return 180000;
+}
+function fmtCLP(n){ return "$" + n.toLocaleString("es-CL"); }
 const DOW = ["L","M","M","J","V","S","D"];
 
 /* ---- estado del calendario ---- */
@@ -662,6 +669,10 @@ function renderBookingSide(){
     <div class="booking-summary">
       <b>${fmtDateShort(selStart)} → ${fmtDateShort(selEnd)}</b>
       <span class="muted">${nights} noche${nights===1?"":"s"}</span>
+      <div class="booking-price">
+        <b id="bookingPriceTotal">${fmtCLP(rateForGuests(2)*nights)}</b>
+        <span class="muted" id="bookingPriceDetail">${fmtCLP(rateForGuests(2))} / noche · 2 personas</span>
+      </div>
     </div>
     <form id="bookingForm">
       <div class="field"><label>Nombre</label><input type="text" name="nombre" required></div>
@@ -672,15 +683,28 @@ function renderBookingSide(){
       <p class="booking-note">Esto es una solicitud, no una confirmación. Te contactaremos para coordinar.</p>
     </form>
   `;
+  const guestsInput = document.querySelector('input[name="numGuests"]');
+  function updatePriceDisplay(){
+    const n = Math.min(6, Math.max(1, Number(guestsInput.value)||1));
+    const rate = rateForGuests(n);
+    document.getElementById("bookingPriceTotal").textContent = fmtCLP(rate*nights);
+    document.getElementById("bookingPriceDetail").textContent = `${fmtCLP(rate)} / noche · ${n} persona${n===1?"":"s"}`;
+  }
+  guestsInput.addEventListener("input", updatePriceDisplay);
+
   document.getElementById("bookingForm").addEventListener("submit", (e)=>{
     e.preventDefault();
     const fd = new FormData(e.target);
     const btn = document.getElementById("bookingSubmitBtn");
     btn.disabled = true; btn.textContent = "Enviando...";
+    const finalGuests = Math.min(6, Math.max(1, Number(fd.get("numGuests"))||1));
+    const finalRate = rateForGuests(finalGuests);
     fbDb.collection("solicitudes").add({
       nombre: (fd.get("nombre")||"").trim(),
       contacto: (fd.get("contacto")||"").trim(),
-      numGuests: Math.min(6, Math.max(1, Number(fd.get("numGuests"))||1)),
+      numGuests: finalGuests,
+      precioPorNoche: finalRate,
+      precioTotal: finalRate*nights,
       mensaje: (fd.get("mensaje")||"").trim(),
       checkIn: selStart, checkOut: selEnd,
       creadoEn: Date.now(),
