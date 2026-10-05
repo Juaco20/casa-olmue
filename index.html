@@ -234,6 +234,8 @@
   .footer-admin-link{color:rgba(255,255,255,.32); text-decoration:none; margin-left:8px; font-size:.72rem;}
   .footer-admin-link:hover{color:rgba(255,255,255,.6);}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>(function(){ if(window.emailjs){ emailjs.init({publicKey: "oeqCvBs_zLOC2KPIp"}); } })();</script>
 </head>
 <body>
 
@@ -734,6 +736,15 @@ function renderBookingSide(){
     }).then(()=>{
       submitted = true;
       renderBookingSide();
+      if(window.emailjs){
+        emailjs.send("service_m8e7l5g", "template_s639b8e", {
+          from_name: (fd.get("nombre")||"").trim(),
+          contacto: `${fd.get("contactoCod")||"+56"} ${(fd.get("contacto")||"").trim()}`.trim(),
+          fechas: `${fmtDateShort(selStart)} \u2192 ${fmtDateShort(selEnd)}`,
+          personas: String(finalGuests),
+          precio: fmtCLP(finalRate*nights),
+        }).catch(err=>console.error("Error enviando notificacion por correo:", err));
+      }
     }).catch(err=>{
       console.error(err);
       btn.disabled = false; btn.textContent = "Enviar solicitud de reserva";
