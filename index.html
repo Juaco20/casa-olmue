@@ -202,14 +202,19 @@
   .location-card iframe{width:100%; height:100%; min-height:260px; border:none; display:block;}
 
   /* ---- qué hacer ---- */
-  .activity-grid{display:grid; gap:16px; grid-template-columns:repeat(2,1fr);}
-  @media(min-width:760px){ .activity-grid{grid-template-columns:repeat(3,1fr);} }
-  .activity-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-sm); box-shadow:var(--shadow); padding:22px;}
-  .activity-card .ac-icon{width:42px; height:42px; border-radius:11px; background:var(--accent-soft); color:var(--accent-strong); display:flex; align-items:center; justify-content:center; margin-bottom:14px;}
-  .activity-card .ac-icon svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8;}
-  .activity-card h4{font-size:1rem; font-weight:700; margin-bottom:6px;}
-  .activity-card p{font-size:.86rem; color:var(--ink-soft); margin:0; line-height:1.55;}
-  .activity-more{display:flex; justify-content:center; margin-top:26px;}
+  .activity-list{border-top:1px solid var(--line); margin-top:12px;}
+  .activity-row{display:grid; grid-template-columns:40px 1fr; gap:18px; padding:24px 0 24px 17px; border-bottom:1px solid var(--line); border-left:3px solid transparent; align-items:start; transition:background .15s, border-color .15s;}
+  .activity-row:hover{background:var(--surface-2); border-left-color:var(--accent);}
+  .ar-index{font-family:var(--font-display); font-weight:700; font-size:.82rem; color:var(--accent-strong); padding-top:2px;}
+  .ar-body h4{font-size:1.02rem; font-weight:700; margin:0 0 7px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .ar-body p{font-size:.87rem; color:var(--ink-soft); margin:0; line-height:1.65; max-width:64ch;}
+  .ar-tag{display:inline-flex; align-items:center; font-size:.64rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--accent-strong); background:var(--accent-soft); padding:3px 9px; border-radius:999px; white-space:nowrap;}
+  @media(min-width:800px){
+    .activity-row{grid-template-columns:40px 230px 1fr; align-items:baseline;}
+    .ar-body{display:contents;}
+    .ar-body h4{margin:0;}
+  }
+  .activity-more{display:flex; justify-content:center; margin-top:30px;}
 
   /* ---- footer ---- */
   .site-footer{background:var(--dark); color:rgba(255,255,255,.78); margin-top:20px;}
@@ -418,36 +423,48 @@
     <div class="section-eyebrow">Alrededores</div>
     <h2 class="section-title">Qué hacer en Olmué</h2>
     <p class="section-sub">La casa está a pasos del Parque Nacional La Campana y del pueblo, con panoramas para todos los gustos.</p>
-    <div class="activity-grid">
-      <div class="activity-card">
-        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M3 19l6-10 4 6 2-3 6 7z"/></svg></div>
-        <h4>Parque Nacional La Campana</h4>
-        <p>Reserva de la Biósfera declarada por la UNESCO, con bosque nativo (incluida la palma chilena) y senderos para distintos niveles. Abre de martes a domingo, de 8:30 a 17:00 hrs (última entrada 15:30). Hay que reservar la entrada con anticipación en pasesparques.cl, porque el cupo diario es limitado.</p>
+    <div class="activity-list">
+      <div class="activity-row">
+        <div class="ar-index">01</div>
+        <div class="ar-body">
+          <h4>Parque Nacional La Campana</h4>
+          <p>Reserva de la Biósfera declarada por la UNESCO, con bosque nativo (incluida la palma chilena) y senderos para distintos niveles. Abre de martes a domingo, de 8:30 a 17:00 hrs (última entrada 15:30). Hay que reservar la entrada con anticipación en pasesparques.cl, porque el cupo diario es limitado.</p>
+        </div>
       </div>
-      <div class="activity-card">
-        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M6 21V4m0 3l9 3-9 3"/></svg></div>
-        <h4>Sendero a la Cumbre (Sector Granizo)</h4>
-        <p>La caminata más exigente del parque: cerca de 1.460 m de desnivel hasta los 1.880 m de la cumbre del Cerro La Campana, con vista al mar y a la cordillera en un mismo golpe de vista. Es sendero de un día completo (5 a 6 horas ida y vuelta para un ritmo normal), así que conviene partir temprano y llevar harta agua.</p>
+      <div class="activity-row">
+        <div class="ar-index">02</div>
+        <div class="ar-body">
+          <h4>Sendero a la Cumbre (Sector Granizo)</h4>
+          <p>La caminata más exigente del parque: cerca de 1.460 m de desnivel hasta los 1.880 m de la cumbre del Cerro La Campana, con vista al mar y a la cordillera en un mismo golpe de vista. Es sendero de un día completo (5 a 6 horas ida y vuelta para un ritmo normal), así que conviene partir temprano y llevar harta agua.</p>
+        </div>
       </div>
-      <div class="activity-card">
-        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M5 21c8 0 14-6 14-14V5h-2C9 5 5 11 5 19z"/><path d="M5 19l9-9"/></svg></div>
-        <h4>Sector Cajón Grande</h4>
-        <p>La entrada más cercana a la casa y la más tranquila de las tres del parque: senderos cortos entre bosque nativo, ideal para ir en familia, con niños, o simplemente sin ganas de subir hasta la cumbre.</p>
+      <div class="activity-row">
+        <div class="ar-index">03</div>
+        <div class="ar-body">
+          <h4>Sector Cajón Grande</h4>
+          <p>La entrada más cercana a la casa y la más tranquila de las tres del parque: senderos cortos entre bosque nativo, ideal para ir en familia, con niños, o simplemente sin ganas de subir hasta la cumbre.</p>
+        </div>
       </div>
-      <div class="activity-card">
-        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M4 9l1-5h14l1 5"/><path d="M5 9v10h14V9"/><path d="M9 19v-6h6v6"/></svg></div>
-        <h4>Plaza de Armas de Olmué</h4>
-        <p>El centro del pueblo, a pocos minutos en auto desde la casa: cafés, restaurantes y el ambiente típico de un pueblo cordillerano, con feria de artesanía y productos locales los fines de semana.</p>
+      <div class="activity-row">
+        <div class="ar-index">04</div>
+        <div class="ar-body">
+          <h4>Plaza de Armas de Olmué</h4>
+          <p>El centro del pueblo, a pocos minutos en auto desde la casa: cafés, restaurantes y el ambiente típico de un pueblo cordillerano, con feria de artesanía y productos locales los fines de semana.</p>
+        </div>
       </div>
-      <div class="activity-card">
-        <div class="ac-icon"><svg viewBox="0 0 24 24"><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="16" r="2.5"/><path d="M9.5 18V6l10-2v12"/></svg></div>
-        <h4>Festival del Huaso de Olmué</h4>
-        <p>La próxima edición es del jueves 14 al domingo 17 de enero de 2027, en el Anfiteatro El Patagual. Cuatro noches de folclore, música y humor chileno que cada verano llenan el pueblo — si tu estadía cae esas fechas, conviene reservar entradas al festival con bastante anticipación.</p>
+      <div class="activity-row">
+        <div class="ar-index">05</div>
+        <div class="ar-body">
+          <h4>Festival del Huaso de Olmué <span class="ar-tag">14–17 ene 2027</span></h4>
+          <p>El Anfiteatro El Patagual recibe cuatro noches de folclore, música y humor chileno que cada verano llenan el pueblo — si tu estadía cae esas fechas, conviene reservar entradas al festival con bastante anticipación.</p>
+        </div>
       </div>
-      <div class="activity-card">
-        <div class="ac-icon"><svg viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 004 0V3M8 12v9"/><path d="M16 3c-1.5 0-2 2-2 4s.5 4 2 4v10"/></svg></div>
-        <h4>Gastronomía local</h4>
-        <p>Restaurantes campestres alrededor del pueblo con comida chilena abundante y casera — cazuelas, parrilladas, pastel de choclo — ideales para después de una caminata al parque.</p>
+      <div class="activity-row">
+        <div class="ar-index">06</div>
+        <div class="ar-body">
+          <h4>Gastronomía local</h4>
+          <p>Restaurantes campestres alrededor del pueblo con comida chilena abundante y casera — cazuelas, parrilladas, pastel de choclo — ideales para después de una caminata al parque.</p>
+        </div>
       </div>
     </div>
     <div class="activity-more">
