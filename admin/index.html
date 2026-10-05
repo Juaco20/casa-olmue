@@ -700,6 +700,21 @@ function activeReservas(){ return state.reservas.filter(r=>r.status!=="cancelada
 
 function reservaBalance(r){ return Math.max(0, (r.totalPrice||0) - (r.deposit||0)); }
 
+/* ===== Fuente única de verdad para disponibilidad =====
+   Dos reservas se cruzan si sus rangos [checkIn, checkOut) se tocan.
+   El día de salida de una reserva SÍ puede ser el día de llegada de otra. */
+function reservasOverlap(aIn, aOut, bIn, bOut){
+  return aIn < bOut && aOut > bIn;
+}
+function findConflictingReserva(checkIn, checkOut, excludeId, reservasList){
+  const list = reservasList || state.reservas;
+  return list.find(r =>
+    r.id !== excludeId &&
+    r.status !== "cancelada" &&
+    reservasOverlap(checkIn, checkOut, r.checkIn, r.checkOut)
+  ) || null;
+}
+
 function upsertGuestFromReserva(r){
   const key = guestKey(r);
   let existing = state.huespedes[key];
@@ -921,6 +936,10 @@ function renderDayDetail(){
     if(dep) body += `<p style="margin:6px 0"><strong>Sale:</strong> ${escapeHtml(dep.guestName)} — <a href="${waLink(dep.phone)}" target="_blank" rel="noopener">WhatsApp</a></p>`;
     if(arr) body += `<p style="margin:6px 0"><strong>Llega:</strong> ${escapeHtml(arr.guestName)} (${arr.numGuests} pers.) — <a href="${waLink(arr.phone)}" target="_blank" rel="noopener">WhatsApp</a></p>`;
     else if(stay) body += `<p style="margin:6px 0"><strong>Se queda:</strong> ${escapeHtml(stay.guestName)} hasta ${fmtDateShort(stay.checkOut)}</p>`;
+    if(dep && !stay && !arr){
+      body += `<p class="section-sub" style="margin:6px 0 10px">Día libre desde esta salida — se puede recibir una nueva llegada el mismo día.</p>
+        <button class="btn btn-primary btn-sm" data-action="newFromDay" data-iso="${iso}">${ICONS.plus} Nueva reserva desde este día</button>`;
+    }
     const showId = (arr||stay||dep).id;
     body += `<button class="btn btn-sm" data-action="editReserva" data-id="${showId}">${ICONS.edit} Ver / editar reserva</button>`;
   }
@@ -1299,7 +1318,7 @@ function openReservaModal(id, presetCheckIn){
       rutHelper.style.color = "var(--bad)";
     }
   });
-  document.getElementById("reservaForm").addEventListener("submit", (e)=>{
+  document.getElementById("reservaForm").addEventListener("submit", async (e)=>{
     e.preventDefault();
     const fd = new FormData(e.target);
     const checkIn = fd.get("checkIn"), checkOut = fd.get("checkOut");
@@ -1310,38 +1329,41 @@ function openReservaModal(id, presetCheckIn){
     const nights = nightsBetween(checkIn, checkOut);
     const totalPrice = nights * pricePerNight;
     const now = new Date().toISOString();
+    const fields = {
+      guestName: fd.get("guestName").trim(),
+      phone: fd.get("phone").trim(),
+      rut: normalizeRut(rutValue),
+      checkIn, checkOut,
+      numGuests: Number(fd.get("numGuests"))||1,
+      status: fd.get("status"),
+      pricePerNight, totalPrice,
+      deposit: Number(fd.get("deposit"))||0,
+      notes: fd.get("notes").trim(),
+      updatedAt: now,
+    };
     if(editing){
-      Object.assign(editing, {
-        guestName: fd.get("guestName").trim(),
-        phone: fd.get("phone").trim(),
-        rut: normalizeRut(rutValue),
-        checkIn, checkOut,
-        numGuests: Number(fd.get("numGuests"))||1,
-        status: fd.get("status"),
-        pricePerNight, totalPrice,
-        deposit: Number(fd.get("deposit"))||0,
-        notes: fd.get("notes").trim(),
-        updatedAt: now,
-      });
-      upsertGuestFromReserva(editing);
+      fields.createdAt = editing.createdAt;
+      fields.checklist = editing.checklist;
+      fields.rating = editing.rating!=null ? editing.rating : null;
     } else {
-      const r = {
-        id: uid("r"),
-        guestName: fd.get("guestName").trim(),
-        phone: fd.get("phone").trim(),
-        rut: normalizeRut(rutValue),
-        checkIn, checkOut,
-        numGuests: Number(fd.get("numGuests"))||1,
-        status: fd.get("status"),
-        pricePerNight, totalPrice,
-        deposit: Number(fd.get("deposit"))||0,
-        notes: fd.get("notes").trim(),
-        checklist: state.checklistTemplate.map(t=>({text:t, done:false})),
-        rating: null,
-        createdAt: now, updatedAt: now,
-      };
-      state.reservas.push(r);
-      upsertGuestFromReserva(r);
+      fields.checklist = state.checklistTemplate.map(t=>({text:t, done:false}));
+      fields.rating = null;
+      fields.createdAt = now;
+    }
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const prevLabel = submitBtn.textContent;
+    submitBtn.disabled = true; submitBtn.textContent = "Guardando...";
+    const id = editing ? editing.id : uid("r");
+    const result = await commitReserva(id, fields, !!editing);
+    if(!result.ok){
+      submitBtn.disabled = false; submitBtn.textContent = prevLabel;
+      if(result.conflict){
+        const c = result.conflict;
+        toast(`Esas fechas se cruzan con la reserva de ${c.guestName} (${fmtDateShort(c.checkIn)} → ${fmtDateShort(c.checkOut)}). Elige otro período.`);
+      } else {
+        toast("No se pudo guardar la reserva. Revisa tu conexión e intenta de nuevo.");
+      }
+      return;
     }
     state.settings.defaultPrice = pricePerNight;
     saveState();
@@ -1692,6 +1714,58 @@ function syncDisponibilidad(){
     .catch(err=>console.error(err));
 }
 
+/* Crea o edita una reserva validando que no se cruce con ninguna otra.
+   Si hay conexión a la nube, la validación y el guardado ocurren dentro de una
+   transacción de Firestore: se vuelve a leer el estado más reciente justo antes
+   de escribir y se repite la validación ahí mismo, para que dos personas
+   guardando casi al mismo tiempo las mismas fechas no puedan generar un cruce
+   (gana la primera transacción en confirmarse; la segunda se rechaza con el
+   conflicto ya actualizado). Devuelve { ok:true, reserva } o
+   { ok:false, conflict } / { ok:false, error }. */
+async function commitReserva(id, fields, editingExisting){
+  if(fbDb && cloudReady){
+    const stateRef = fbDb.collection("data").doc("state");
+    try{
+      await fbDb.runTransaction(async (tx)=>{
+        const snap = await tx.get(stateRef);
+        const fresh = snap.exists ? normalizeState(snap.data()) : defaultState();
+        const conflict = findConflictingReserva(fields.checkIn, fields.checkOut, id, fresh.reservas);
+        if(conflict){
+          const err = new Error("CONFLICT");
+          err.conflict = conflict;
+          throw err;
+        }
+        const reservas = editingExisting
+          ? fresh.reservas.map(r => r.id===id ? Object.assign({}, r, fields, { id }) : r)
+          : fresh.reservas.concat([Object.assign({ id }, fields)]);
+        tx.set(stateRef, Object.assign({}, fresh, { reservas }));
+      });
+    } catch(err){
+      if(err && err.conflict) return { ok:false, conflict: err.conflict };
+      console.error(err);
+      return { ok:false, error: err };
+    }
+    // traemos el estado recién confirmado por la transacción, por si llegaron
+    // otros cambios (de este u otro dispositivo) mientras esperábamos
+    const snap = await stateRef.get();
+    state = snap.exists ? normalizeState(snap.data()) : defaultState();
+  } else {
+    // sin conexión a la nube todavía: validamos solo contra los datos locales
+    const conflict = findConflictingReserva(fields.checkIn, fields.checkOut, id, state.reservas);
+    if(conflict) return { ok:false, conflict };
+    if(editingExisting){
+      const r = state.reservas.find(x=>x.id===id);
+      if(r) Object.assign(r, fields);
+    } else {
+      state.reservas.push(Object.assign({ id }, fields));
+    }
+  }
+  const committed = state.reservas.find(x=>x.id===id);
+  if(committed) upsertGuestFromReserva(committed);
+  saveState();
+  return { ok:true, reserva: committed };
+}
+
 let cloudSyncStarted = false;
 function initCloudSync(){
   if(cloudSyncStarted) return;
@@ -1737,14 +1811,14 @@ function renderSolicitudesBadge(){
   badge.textContent = n>9 ? "9+" : String(n);
 }
 
-function acceptSolicitud(id){
+async function acceptSolicitud(id){
   const s = solicitudesCache.find(x=>x.id===id);
   if(!s) return;
   const nights = nightsBetween(s.checkIn, s.checkOut);
   const pricePerNight = state.settings.defaultPrice || 0;
   const now = new Date().toISOString();
-  const r = {
-    id: uid("r"),
+  const newId = uid("r");
+  const fields = {
     guestName: s.nombre || "Sin nombre",
     phone: s.contacto || "",
     rut: "",
@@ -1758,10 +1832,47 @@ function acceptSolicitud(id){
     rating: null,
     createdAt: now, updatedAt: now,
   };
-  state.reservas.push(r);
-  upsertGuestFromReserva(r);
+
+  if(fbDb){
+    const stateRef = fbDb.collection("data").doc("state");
+    const solRef = fbDb.collection("solicitudes").doc(id);
+    try{
+      await fbDb.runTransaction(async (tx)=>{
+        const snap = await tx.get(stateRef);
+        const fresh = snap.exists ? normalizeState(snap.data()) : defaultState();
+        const conflict = findConflictingReserva(fields.checkIn, fields.checkOut, null, fresh.reservas);
+        if(conflict){
+          const err = new Error("CONFLICT");
+          err.conflict = conflict;
+          throw err;
+        }
+        const reservas = fresh.reservas.concat([Object.assign({ id:newId }, fields)]);
+        tx.set(stateRef, Object.assign({}, fresh, { reservas }));
+        tx.delete(solRef);
+      });
+    } catch(err){
+      if(err && err.conflict){
+        const c = err.conflict;
+        alert(`No se puede aceptar: esas fechas se cruzan con la reserva de ${c.guestName} (${fmtDateShort(c.checkIn)} → ${fmtDateShort(c.checkOut)}). Rechaza la solicitud o contacta al huésped para coordinar otras fechas.`);
+      } else {
+        console.error(err);
+        toast("No se pudo aceptar la solicitud. Revisa tu conexión e intenta de nuevo.");
+      }
+      return;
+    }
+    const snap = await stateRef.get();
+    state = snap.exists ? normalizeState(snap.data()) : defaultState();
+  } else {
+    const conflict = findConflictingReserva(fields.checkIn, fields.checkOut, null, state.reservas);
+    if(conflict){
+      alert(`No se puede aceptar: esas fechas se cruzan con la reserva de ${conflict.guestName} (${fmtDateShort(conflict.checkIn)} → ${fmtDateShort(conflict.checkOut)}). Rechaza la solicitud o contacta al huésped para coordinar otras fechas.`);
+      return;
+    }
+    state.reservas.push(Object.assign({ id:newId }, fields));
+  }
+  const committed = state.reservas.find(x=>x.id===newId);
+  if(committed) upsertGuestFromReserva(committed);
   saveState();
-  fbDb.collection("solicitudes").doc(id).delete().catch(err=>console.error(err));
   toast("Solicitud aceptada, se creó la reserva.");
   render();
 }

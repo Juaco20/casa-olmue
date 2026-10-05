@@ -749,8 +749,9 @@ function renderCal(){
     const past = iso < today;
     const busy = isBusy(iso);
     let cls = "cal-cell";
-    let disabled = past || busy;
-    if(disabled) cls += past ? " past" : " busy";
+    let disabled = past;
+    if(past) cls += " past";
+    else if(busy) cls += " busy";
     else cls += " avail";
     if(selStart && iso===selStart) cls += " range-start";
     if(selEnd && iso===selEnd) cls += " range-end";
@@ -765,7 +766,7 @@ function renderCal(){
   const now = new Date();
   document.getElementById("calPrev").disabled = (calYear===now.getFullYear() && calMonth<=now.getMonth());
 
-  document.querySelectorAll(".cal-cell.avail").forEach(btn=>{
+  document.querySelectorAll(".cal-cell.avail, .cal-cell.busy").forEach(btn=>{
     btn.addEventListener("click", ()=> onDayClick(btn.dataset.iso));
   });
 
@@ -773,15 +774,26 @@ function renderCal(){
 }
 
 function onDayClick(iso){
+  if(iso < today) return;
+  const busy = isBusy(iso);
+
   if(!selStart || (selStart && selEnd)){
+    // eligiendo fecha de llegada: ese día no puede estar ocupado
+    if(busy) return;
+    selStart = iso; selEnd = null;
+  } else if(iso <= selStart){
+    // cambia de opinión sobre la fecha de llegada
+    if(busy) return;
+    selStart = iso; selEnd = null;
+  } else if(rangeCrossesBusy(selStart, iso)){
+    // el tramo intermedio choca con otra reserva: no sirve como salida,
+    // así que lo tomamos como un nuevo intento de fecha de llegada
+    if(busy) return;
     selStart = iso; selEnd = null;
   } else {
-    if(iso <= selStart){ selStart = iso; selEnd = null; }
-    else if(rangeCrossesBusy(selStart, iso)){
-      selStart = iso; selEnd = null;
-    } else {
-      selEnd = iso;
-    }
+    // válido como fecha de salida: puede coincidir con el día en que
+    // comienza otra reserva (esta termina esa mañana, la otra empieza esa tarde)
+    selEnd = iso;
   }
   submitted = false;
   renderCal();
