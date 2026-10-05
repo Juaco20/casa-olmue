@@ -72,11 +72,6 @@
   .nav-links a::after{content:""; position:absolute; left:0; right:100%; bottom:0; height:1px; background:currentColor; transition:right .35s var(--ease);}
   .nav-links a:hover::after{right:0;}
   @media(min-width:900px){ .nav-links{display:flex;} }
-  .nav-admin{display:none; font-size:.8rem; font-weight:500; color:rgba(255,255,255,.72); text-decoration:none; transition:color .4s var(--ease);}
-  .site-nav.scrolled .nav-admin{color:var(--ink-faint);}
-  .nav-admin:hover{color:#fff;}
-  .site-nav.scrolled .nav-admin:hover{color:var(--ink);}
-  @media(min-width:900px){ .nav-admin{display:block;} }
   .nav-toggle{display:flex; flex-direction:column; justify-content:center; gap:5px; width:30px; height:30px; background:none; border:none; cursor:pointer; padding:0;}
   @media(min-width:900px){ .nav-toggle{display:none;} }
   .nav-toggle span{display:block; width:100%; height:1px; background:#fff; transition:background .4s var(--ease), transform .35s var(--ease), opacity .35s var(--ease);}
@@ -88,7 +83,6 @@
   .nav-mobile{position:fixed; inset:0; z-index:55; background:var(--ground); display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:22px; padding:24px 32px; opacity:0; visibility:hidden; transform:translateY(-14px); transition:opacity .45s var(--ease), transform .45s var(--ease), visibility 0s linear .45s;}
   .nav-mobile.is-open{opacity:1; visibility:visible; transform:translateY(0); transition:opacity .45s var(--ease), transform .45s var(--ease);}
   .nav-mobile a{font-family:var(--font-display); font-size:2rem; font-weight:440; text-decoration:none; color:var(--ink);}
-  .nav-mobile .nav-mobile-admin{margin-top:18px; font-family:var(--font-body); font-size:.86rem; color:var(--ink-soft); text-decoration:none;}
 
   /* ---- hero ---- */
   .hero{position:relative; height:100svh; min-height:560px; display:flex; align-items:flex-end; color:#fff; overflow:hidden;}
@@ -325,7 +319,6 @@
       <a href="#que-hacer">Qué hacer</a>
       <a href="#ubicacion">Ubicación</a>
     </div>
-    <a class="nav-admin" href="admin/">Administración</a>
     <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </nav>
@@ -336,7 +329,6 @@
   <a href="#galeria">Fotos</a>
   <a href="#que-hacer">Qué hacer</a>
   <a href="#ubicacion">Ubicación</a>
-  <a class="nav-mobile-admin" href="admin/">Administración</a>
 </div>
 
 <header class="hero" id="top">
