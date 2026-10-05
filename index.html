@@ -666,7 +666,7 @@ function renderBookingSide(){
     <form id="bookingForm">
       <div class="field"><label>Nombre</label><input type="text" name="nombre" required></div>
       <div class="field"><label>WhatsApp o teléfono</label><input type="tel" name="contacto" required></div>
-      <div class="field"><label>Número de personas</label><input type="number" name="numGuests" min="1" value="2" required></div>
+      <div class="field"><label>Número de personas</label><input type="number" name="numGuests" min="1" max="6" value="2" required></div>
       <div class="field"><label>Mensaje (opcional)</label><textarea name="mensaje" placeholder="Cuéntanos algo más, si quieres"></textarea></div>
       <button type="submit" class="btn btn-primary btn-block" id="bookingSubmitBtn">Enviar solicitud de reserva</button>
       <p class="booking-note">Esto es una solicitud, no una confirmación. Te contactaremos para coordinar.</p>
@@ -680,7 +680,7 @@ function renderBookingSide(){
     fbDb.collection("solicitudes").add({
       nombre: (fd.get("nombre")||"").trim(),
       contacto: (fd.get("contacto")||"").trim(),
-      numGuests: Number(fd.get("numGuests"))||1,
+      numGuests: Math.min(6, Math.max(1, Number(fd.get("numGuests"))||1)),
       mensaje: (fd.get("mensaje")||"").trim(),
       checkIn: selStart, checkOut: selEnd,
       creadoEn: Date.now(),
