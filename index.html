@@ -94,6 +94,15 @@
   .welcome .ph-box{aspect-ratio:4/3.2; border-radius:var(--radius); box-shadow:var(--shadow);}
   .welcome .ph-box img{border-radius:var(--radius);}
 
+  /* ---- why choose us ---- */
+  .why-grid{display:grid; gap:22px; grid-template-columns:repeat(2,1fr); margin-top:8px;}
+  @media(min-width:760px){ .why-grid{grid-template-columns:repeat(5,1fr);} }
+  .why-item{display:flex; flex-direction:column; gap:10px;}
+  .why-item .why-icon{width:40px; height:40px; border-radius:11px; background:var(--accent-soft); color:var(--accent-strong); display:flex; align-items:center; justify-content:center;}
+  .why-item .why-icon svg{width:21px; height:21px; stroke:currentColor; fill:none; stroke-width:1.9;}
+  .why-item h4{font-size:.95rem; font-weight:700; margin:0;}
+  .why-item p{font-size:.84rem; color:var(--ink-soft); margin:0; line-height:1.5;}
+
   /* ---- card grid (habitaciones/servicios style) ---- */
   .feature-grid{display:grid; gap:16px; grid-template-columns:repeat(2,1fr);}
   @media(min-width:760px){ .feature-grid{grid-template-columns:repeat(4,1fr);} }
@@ -270,6 +279,40 @@
       <div class="ph-box">
         <img src="img/welcome.jpg" alt="Vive Olmué" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'">
         <div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>Agrega img/welcome.jpg</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="por-que">
+  <div class="wrap">
+    <div class="section-eyebrow">Por qué esta casa</div>
+    <h2 class="section-title">Pensada para desconectar de verdad</h2>
+    <div class="why-grid">
+      <div class="why-item">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M3 19l6-10 4 6 2-3 6 7z"/></svg></div>
+        <h4>A los pies del cerro</h4>
+        <p>A pasos del Parque Nacional La Campana y a minutos del pueblo — naturaleza y pueblo, sin tener que elegir.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M7 14c1-2 3-3 5-3s4 1 5 3"/></svg></div>
+        <h4>Piscina y quincho propios</h4>
+        <p>Espacios exclusivos para tu grupo, sin compartir con otros huéspedes — ideal para familias o amigos.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M4 12l1.5-7h13L20 12"/><path d="M4 12v7h16v-7"/><path d="M9 19v-5h6v5"/></svg></div>
+        <h4>Recién remodelada</h4>
+        <p>Cuidamos los detalles que se notan: buena cama, buena ducha, WiFi que funciona.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/></svg></div>
+        <h4>Reserva directa, sin intermediarios</h4>
+        <p>Eliges tus fechas en el calendario y coordinamos todo por WhatsApp, de persona a persona.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.6H19l-4.6 3.4 1.8 5.6L12 14.2l-4.2 3.4 1.8-5.6L5 8.6h5.2z"/></svg></div>
+        <h4>Tranquilidad real</h4>
+        <p>Entorno de montaña, lejos del ruido de la ciudad — para desconectar de verdad, no solo cambiar de aire.</p>
       </div>
     </div>
   </div>
