@@ -737,7 +737,7 @@ function renderBookingSide(){
       submitted = true;
       renderBookingSide();
       if(window.emailjs){
-        emailjs.send("service_m8e7l5g", "template_s639b8e", {
+        emailjs.send("service_m8e7l5g", "template_k2hlq3i", {
           from_name: (fd.get("nombre")||"").trim(),
           contacto: `${fd.get("contactoCod")||"+56"} ${(fd.get("contacto")||"").trim()}`.trim(),
           fechas: `${fmtDateShort(selStart)} \u2192 ${fmtDateShort(selEnd)}`,
