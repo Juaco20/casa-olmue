@@ -89,10 +89,19 @@
   .section-sub{color:var(--ink-soft); margin-bottom:34px; max-width:58ch;}
 
   /* ---- welcome split ---- */
-  .welcome{display:grid; gap:40px; align-items:center;}
-  @media(min-width:860px){ .welcome{grid-template-columns:1fr 1fr;} }
-  .welcome .ph-box{aspect-ratio:4/3.2; border-radius:var(--radius); box-shadow:var(--shadow);}
-  .welcome .ph-box img{border-radius:var(--radius);}
+  .welcome{display:grid; gap:48px; align-items:center;}
+  @media(min-width:860px){ .welcome{grid-template-columns:1.05fr 1fr; gap:64px;} }
+  .welcome-lede{color:var(--ink-soft); margin-bottom:26px; max-width:48ch;}
+  .welcome-facts{display:flex; flex-wrap:wrap; gap:16px 28px; margin-bottom:30px; padding-bottom:28px; border-bottom:1px solid var(--line);}
+  .welcome-fact{display:flex; align-items:center; gap:9px; font-size:.86rem; font-weight:700; color:var(--ink);}
+  .welcome-fact svg{width:18px; height:18px; stroke:var(--accent-strong); stroke-width:1.9; fill:none; stroke-linecap:round; stroke-linejoin:round; flex:none;}
+  .welcome-media{position:relative; padding:0 8% 14% 0;}
+  .welcome-media::before{content:""; position:absolute; width:72%; height:72%; top:-12%; right:-10%; background:radial-gradient(circle at 35% 35%, var(--accent-soft), transparent 72%); border-radius:50%; z-index:0;}
+  .welcome-photo-main{aspect-ratio:4/3.4; border-radius:var(--radius); box-shadow:var(--shadow); position:relative; z-index:1;}
+  .welcome-photo-main img{border-radius:var(--radius);}
+  .welcome-photo-accent{position:absolute; left:-6%; bottom:0; width:46%; aspect-ratio:1/1; border-radius:var(--radius-sm); box-shadow:var(--shadow); border:5px solid var(--surface); z-index:2;}
+  .welcome-photo-accent img{border-radius:7px;}
+  @media(max-width:859px){ .welcome-media{padding:0;} .welcome-photo-accent{display:none;} .welcome-media::before{width:60%; height:60%;} }
 
   /* ---- why choose us ---- */
   .why-grid{display:grid; gap:22px; grid-template-columns:repeat(2,1fr); margin-top:8px;}
@@ -284,12 +293,23 @@
       <div>
         <div class="section-eyebrow">Bienvenido a</div>
         <h2 class="section-title">Vive Olmué</h2>
-        <p style="color:var(--ink-soft); margin-bottom:22px;">Ya sea una escapada en familia, un fin de semana con amigos o unos días de descanso, la casa fue remodelada pensando en que no te falte nada: buena cama, buena ducha, y espacios para compartir afuera.</p>
+        <p class="welcome-lede">Ya sea una escapada en familia, un fin de semana con amigos o unos días de descanso, la casa fue remodelada pensando en que no te falte nada: buena cama, buena ducha, y espacios para compartir afuera.</p>
+        <div class="welcome-facts">
+          <div class="welcome-fact"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-4 4-5.5 7-5.5s5.5 1.5 7 5.5"/></svg>Hasta 6 huéspedes</div>
+          <div class="welcome-fact"><svg viewBox="0 0 24 24"><path d="M12 3c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C7 9.5 9 7 12 3z"/></svg>Piscina privada</div>
+          <div class="welcome-fact"><svg viewBox="0 0 24 24"><path d="M3 9a14 14 0 0 1 18 0"/><path d="M6.5 12.8a9 9 0 0 1 11 0"/><path d="M10 16.5a4 4 0 0 1 4 0"/><circle cx="12" cy="20" r=".6" fill="currentColor"/></svg>WiFi en toda la casa</div>
+        </div>
         <a class="btn btn-ghost" href="#comodidades">Descubrir más</a>
       </div>
-      <div class="ph-box">
-        <img src="img/welcome.jpg" alt="Vive Olmué" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'">
-        <div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>Agrega img/welcome.jpg</div>
+      <div class="welcome-media">
+        <div class="ph-box welcome-photo-main">
+          <img src="img/welcome.jpg" alt="Vive Olmué" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'">
+          <div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>Agrega img/welcome.jpg</div>
+        </div>
+        <div class="ph-box welcome-photo-accent">
+          <img src="img/gallery-2.jpg" alt="Interior de la casa" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'">
+          <div class="ph-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg></div>
+        </div>
       </div>
     </div>
   </div>
