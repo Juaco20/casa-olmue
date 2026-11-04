@@ -941,7 +941,7 @@ function probeImage(src){
 }
 
 function buildGallery(){
-  const MAX_CANDIDATES = 16;
+  const MAX_CANDIDATES = 30;
   const candidates = [];
   for(let i=1;i<=MAX_CANDIDATES;i++) candidates.push(`img/gallery-${i}.jpg`);
   Promise.all(candidates.map(probeImage)).then(results=>{
