@@ -554,6 +554,11 @@ const DEFAULT_CHECKLIST = [
   "Revisar llaves, candados y cerraduras",
   "Airear y ventilar la casa",
 ];
+const DEFAULT_MENSAJES = {
+  confirmacion: "¡Hola {nombre}! Te confirmo tu reserva en Casa Olmué para el {checkin} al {checkout} ({noches} noches). Cualquier duda me escribes por acá. ¡Te esperamos!",
+  llegada: "Hola {nombre}, para tu llegada el {checkin}: el check-in es desde las 16:00. Te paso la dirección y las indicaciones para entrar a la casa más cerca de la fecha. Cualquier cosa me avisas.",
+  salida: "Hola {nombre}, recuerda que el check-out es el {checkout} hasta las 11:00. Si puedes dejar la loza lavada y la basura afuera, se agradece mucho. ¡Que lo hayan pasado increíble!",
+};
 const EXPENSE_CATEGORIES = [
   "Insumos y limpieza",
   "Mantención y reparaciones",
@@ -571,19 +576,23 @@ function defaultState(){
     gastos: [],
     huespedes: {},
     checklistTemplate: DEFAULT_CHECKLIST.slice(),
-    settings: { defaultPrice: null, theme: "system" },
+    settings: { defaultPrice: null, theme: "system", temporadas: [], mensajes: Object.assign({}, DEFAULT_MENSAJES) },
   };
 }
 
 function normalizeState(parsed){
   const base = defaultState();
   parsed = parsed && typeof parsed==="object" ? parsed : {};
+  const parsedSettings = parsed.settings || {};
   return Object.assign(base, parsed, {
     reservas: Array.isArray(parsed.reservas) ? parsed.reservas : [],
     gastos: Array.isArray(parsed.gastos) ? parsed.gastos : [],
     huespedes: parsed.huespedes && typeof parsed.huespedes==="object" ? parsed.huespedes : {},
     checklistTemplate: Array.isArray(parsed.checklistTemplate) && parsed.checklistTemplate.length ? parsed.checklistTemplate : DEFAULT_CHECKLIST.slice(),
-    settings: Object.assign({defaultPrice:null,theme:"system"}, parsed.settings||{}),
+    settings: Object.assign({defaultPrice:null,theme:"system",temporadas:[],mensajes:Object.assign({}, DEFAULT_MENSAJES)}, parsedSettings, {
+      temporadas: Array.isArray(parsedSettings.temporadas) ? parsedSettings.temporadas : [],
+      mensajes: Object.assign({}, DEFAULT_MENSAJES, parsedSettings.mensajes && typeof parsedSettings.mensajes==="object" ? parsedSettings.mensajes : {}),
+    }),
   });
 }
 
@@ -623,6 +632,22 @@ function rateForGuests(n){
   if(n<=4) return 160000;
   return 180000;
 }
+// Si la fecha de llegada cae dentro de una temporada definida en Ajustes, esa tarifa
+// manda por sobre la de cantidad de huéspedes. Es solo una sugerencia al crear la
+// reserva: siempre se puede escribir otro precio a mano. No afecta lo que muestra la web.
+function rateForDate(iso, numGuests){
+  const temporadas = (state.settings.temporadas || []).filter(t=>t.desde && t.hasta && t.precio);
+  const match = temporadas.find(t => t.desde<=iso && iso<=t.hasta);
+  return match ? Number(match.precio) : rateForGuests(numGuests);
+}
+function fillTemplate(tpl, r){
+  const n = nightsBetween(r.checkIn, r.checkOut);
+  return (tpl||"")
+    .replace(/\{nombre\}/g, firstName(r.guestName))
+    .replace(/\{checkin\}/g, fmtDateShort(r.checkIn))
+    .replace(/\{checkout\}/g, fmtDateShort(r.checkOut))
+    .replace(/\{noches\}/g, n+" noche"+(n===1?"":"s"));
+}
 function fmtCLP(n){ n = Number(n)||0; return new Intl.NumberFormat("es-CL",{style:"currency",currency:"CLP",maximumFractionDigits:0}).format(n); }
 function fmtDateShort(iso){ if(!iso) return "—"; return new Intl.DateTimeFormat("es-CL",{weekday:"short",day:"numeric",month:"short"}).format(toDate(iso)).replace(".", ""); }
 function fmtDateLong(iso){ if(!iso) return "—"; return new Intl.DateTimeFormat("es-CL",{weekday:"long",day:"numeric",month:"long"}).format(toDate(iso)); }
@@ -634,6 +659,15 @@ function phoneKey(phone){
   if(d.length===9 && d.startsWith("9")) d = "56"+d;
   if(!d) d = "sin_telefono";
   return d;
+}
+// Busca por nombre, teléfono o RUT. Ojo: si la búsqueda no tiene dígitos, no se compara
+// contra el teléfono (si no, "".includes("") da true y aparecen todos los resultados).
+function guestMatchesSearch(name, phone, rut, q){
+  const qDigits = q.replace(/\D/g,"");
+  const qRut = q.replace(/\./g,"");
+  return (name||"").toLowerCase().includes(q)
+    || (qDigits && phoneDigits(phone).includes(qDigits))
+    || (qRut && (rut||"").toLowerCase().includes(qRut));
 }
 function waLink(phone, text){
   let d = phoneDigits(phone);
@@ -815,6 +849,7 @@ function gastosEnRango(desde, hasta){
 
 /* ============================= NAVEGACIÓN ============================= */
 const TABS = [
+  { id:"resumen", label:"Resumen", icon:"chart" },
   { id:"calendario", label:"Calendario", icon:"calendar" },
   { id:"reservas", label:"Reservas", icon:"list" },
   { id:"solicitudes", label:"Solicitudes", icon:"inbox" },
@@ -823,8 +858,9 @@ const TABS = [
   { id:"gastos", label:"Gastos", icon:"receipt" },
   { id:"finanzas", label:"Finanzas", icon:"scale" },
 ];
-let currentTab = "calendario";
+let currentTab = "resumen";
 let reservaFilter = "proximas";
+let reservaSearch = "";
 let guestSearch = "";
 let expandedGuests = new Set();
 let gastoFilter = "mes";
@@ -845,19 +881,88 @@ function renderShell(){
 function switchTab(id){
   currentTab = id;
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.tab===id));
-  document.getElementById("fab").classList.toggle("hidden", !(id==="calendario"||id==="reservas"));
+  document.getElementById("fab").classList.toggle("hidden", !(id==="resumen"||id==="calendario"||id==="reservas"));
   render();
 }
 
 function render(){
   const c = document.getElementById("content");
-  if(currentTab==="calendario") c.innerHTML = renderCalendario();
+  if(currentTab==="resumen") c.innerHTML = renderResumen();
+  else if(currentTab==="calendario") c.innerHTML = renderCalendario();
   else if(currentTab==="reservas") c.innerHTML = renderReservas();
   else if(currentTab==="solicitudes") c.innerHTML = renderSolicitudes();
   else if(currentTab==="clientes") c.innerHTML = renderClientes();
   else if(currentTab==="limpieza") c.innerHTML = renderLimpieza();
   else if(currentTab==="gastos") c.innerHTML = renderGastos();
   else if(currentTab==="finanzas") c.innerHTML = renderFinanzas();
+}
+
+/* ============================= RESUMEN ============================= */
+function occupancyForMonth(year, month){
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const res = activeReservas();
+  let occupied = 0;
+  for(let d=1; d<=daysInMonth; d++){
+    const iso = year+"-"+pad(month+1)+"-"+pad(d);
+    if(res.some(r=>r.checkIn<=iso && r.checkOut>iso)) occupied++;
+  }
+  return { occupied, total:daysInMonth, pct: daysInMonth ? Math.round((occupied/daysInMonth)*100) : 0 };
+}
+
+function renderResumen(){
+  const now = new Date();
+  const today = todayISO();
+  const thisMonth = monthlyFinance(1)[0] || {income:0, expense:0, balance:0};
+  const occ = occupancyForMonth(now.getFullYear(), now.getMonth());
+  const pending = activeReservas().filter(r=>reservaBalance(r)>0);
+  const pendingTotal = pending.reduce((s,r)=>s+reservaBalance(r),0);
+  const solPendientes = solicitudesCache.length;
+
+  const limit = addDaysISO(today, 7);
+  const upcoming = [];
+  activeReservas().forEach(r=>{
+    if(r.checkIn>=today && r.checkIn<=limit) upcoming.push({ r, iso:r.checkIn, kind:"llega" });
+    if(r.checkOut>=today && r.checkOut<=limit) upcoming.push({ r, iso:r.checkOut, kind:"sale" });
+  });
+  upcoming.sort((a,b)=> a.iso<b.iso ? -1 : a.iso>b.iso ? 1 : 0);
+
+  const upcomingHtml = upcoming.length ? upcoming.map(u=>{
+    const label = u.kind==="llega" ? "Llega" : "Sale";
+    const isToday = u.iso===today;
+    return `
+      <div class="pending-row">
+        <div>
+          <strong>${escapeHtml(u.r.guestName)}</strong>
+          <div class="section-sub">${label} ${isToday?"hoy":fmtDateShort(u.iso)} · ${u.r.numGuests} pers.</div>
+        </div>
+        <a class="btn btn-sm" href="${waLink(u.r.phone)}" target="_blank" rel="noopener" data-stop="1">${ICONS.whatsapp} WhatsApp</a>
+      </div>`;
+  }).join("") : `<p class="section-sub">No hay llegadas ni salidas en los próximos 7 días.</p>`;
+
+  const alerts = [];
+  if(solPendientes>0) alerts.push({ text:`Tienes ${solPendientes} solicitud${solPendientes===1?"":"es"} nueva${solPendientes===1?"":"s"} por revisar.`, tab:"solicitudes", cta:"Ver solicitudes" });
+  if(pending.length>0) alerts.push({ text:`${pending.length} reserva${pending.length===1?"":"s"} con saldo pendiente (${fmtCLP(pendingTotal)}).`, tab:"finanzas", cta:"Ver saldos" });
+  const alertsHtml = alerts.map(a=>`
+    <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--warn-soft); border-color:var(--warn-soft); margin-bottom:12px;">
+      <span style="font-size:.88rem; color:var(--ink);">${a.text}</span>
+      <button class="btn btn-sm" data-action="switchTab" data-tab="${a.tab}">${a.cta}</button>
+    </div>
+  `).join("");
+
+  return `
+    <div class="section-head"><h2>Resumen</h2></div>
+    ${alertsHtml}
+    <div class="tiles">
+      <div class="tile"><div class="label">Ingresos este mes</div><div class="value">${fmtCLP(thisMonth.income)}</div></div>
+      <div class="tile"><div class="label">Ocupación este mes</div><div class="value">${occ.pct}%</div></div>
+      <div class="tile"><div class="label">Por cobrar</div><div class="value">${fmtCLP(pendingTotal)}</div></div>
+      <div class="tile"><div class="label">Solicitudes nuevas</div><div class="value">${solPendientes}</div></div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:.95rem; margin-bottom:10px;">Próximos 7 días</h3>
+      ${upcomingHtml}
+    </div>
+  `;
 }
 
 /* ============================= CALENDARIO ============================= */
@@ -958,9 +1063,46 @@ function renderDayDetail(){
 }
 
 /* ============================= RESERVAS ============================= */
-function renderReservas(){
+function reservaCardHtml(r){
+  const n = nightsBetween(r.checkIn, r.checkOut);
+  const bal = reservaBalance(r);
+  return `<div class="card res-card" data-action="editReserva" data-id="${r.id}">
+    <div class="res-top">
+      <div>
+        <div class="res-name">${escapeHtml(r.guestName)}</div>
+        <div class="res-dates">${fmtDateShort(r.checkIn)} → ${fmtDateShort(r.checkOut)} · ${n} noche${n===1?"":"s"}</div>
+      </div>
+      <span class="pill ${statusPillClass(r.status)}">${statusLabel(r.status)}</span>
+    </div>
+    <div class="res-meta">
+      <span class="pill pill-muted">${r.numGuests} pers.</span>
+      <span class="pill pill-muted">${fmtCLP(r.totalPrice)}</span>
+      <span class="pill ${bal>0?"pill-warn":"pill-good"}">${bal>0?("Saldo "+fmtCLP(bal)):"Pagado"}</span>
+    </div>
+    <div class="res-actions">
+      <a class="btn btn-sm" href="${waLink(r.phone)}" target="_blank" rel="noopener" data-stop="1">${ICONS.whatsapp} WhatsApp</a>
+      <button class="btn btn-sm btn-danger" data-action="deleteReserva" data-id="${r.id}" data-stop="1">${ICONS.trash} Eliminar</button>
+    </div>
+  </div>`;
+}
+
+function filteredReservas(){
   const today = todayISO();
   let list = state.reservas.slice().sort((a,b)=>a.checkIn.localeCompare(b.checkIn));
+  if(reservaFilter==="proximas") list = list.filter(r=>r.checkOut>=today && r.status!=="cancelada");
+  else if(reservaFilter==="pasadas") list = list.filter(r=>r.checkOut<today && r.status!=="cancelada").reverse();
+  else if(reservaFilter==="saldo") list = list.filter(r=>r.status!=="cancelada" && reservaBalance(r)>0);
+  else if(reservaFilter==="canceladas") list = list.filter(r=>r.status==="cancelada");
+  if(reservaSearch.trim()){
+    const q = reservaSearch.trim().toLowerCase();
+    const qDigits = q.replace(/\D/g,"");
+    list = list.filter(r => r.guestName.toLowerCase().includes(q) || (qDigits && phoneDigits(r.phone).includes(qDigits)));
+  }
+  return list;
+}
+
+function renderReservas(){
+  const list = filteredReservas();
   const filters = [
     { id:"proximas", label:"Próximas" },
     { id:"pasadas", label:"Pasadas" },
@@ -968,36 +1110,11 @@ function renderReservas(){
     { id:"canceladas", label:"Canceladas" },
     { id:"todas", label:"Todas" },
   ];
-  if(reservaFilter==="proximas") list = list.filter(r=>r.checkOut>=today && r.status!=="cancelada");
-  else if(reservaFilter==="pasadas") list = list.filter(r=>r.checkOut<today && r.status!=="cancelada").reverse();
-  else if(reservaFilter==="saldo") list = list.filter(r=>r.status!=="cancelada" && reservaBalance(r)>0);
-  else if(reservaFilter==="canceladas") list = list.filter(r=>r.status==="cancelada");
-
-  const cardsHtml = list.length ? list.map(r=>{
-    const n = nightsBetween(r.checkIn, r.checkOut);
-    const bal = reservaBalance(r);
-    return `<div class="card res-card" data-action="editReserva" data-id="${r.id}">
-      <div class="res-top">
-        <div>
-          <div class="res-name">${escapeHtml(r.guestName)}</div>
-          <div class="res-dates">${fmtDateShort(r.checkIn)} → ${fmtDateShort(r.checkOut)} · ${n} noche${n===1?"":"s"}</div>
-        </div>
-        <span class="pill ${statusPillClass(r.status)}">${statusLabel(r.status)}</span>
-      </div>
-      <div class="res-meta">
-        <span class="pill pill-muted">${r.numGuests} pers.</span>
-        <span class="pill pill-muted">${fmtCLP(r.totalPrice)}</span>
-        <span class="pill ${bal>0?"pill-warn":"pill-good"}">${bal>0?("Saldo "+fmtCLP(bal)):"Pagado"}</span>
-      </div>
-      <div class="res-actions">
-        <a class="btn btn-sm" href="${waLink(r.phone)}" target="_blank" rel="noopener" data-stop="1">${ICONS.whatsapp} WhatsApp</a>
-        <button class="btn btn-sm btn-danger" data-action="deleteReserva" data-id="${r.id}" data-stop="1">${ICONS.trash} Eliminar</button>
-      </div>
-    </div>`;
-  }).join("") : `<div class="empty"><b>No hay reservas aquí</b>Toca «Nueva reserva» para registrar la primera, o revisa otro filtro.</div>`;
+  const cardsHtml = list.length ? list.map(reservaCardHtml).join("") : `<div class="empty"><b>No hay reservas aquí</b>Toca «Nueva reserva» para registrar la primera, o revisa otro filtro.</div>`;
 
   return `
     <div class="section-head"><h2>Reservas</h2><span class="section-sub">${state.reservas.length} en total</span></div>
+    <div class="search-box">${ICONS.people}<input type="text" id="reservaSearchInput" placeholder="Buscar por nombre o teléfono" value="${escapeHtml(reservaSearch)}"></div>
     <div class="filters">
       ${filters.map(f=>`<button class="chip${reservaFilter===f.id?" active":""}" data-action="setFilter" data-filter="${f.id}">${f.label}</button>`).join("")}
     </div>
@@ -1067,7 +1184,7 @@ function renderClientes(){
   let guests = computeGuestStats();
   if(guestSearch.trim()){
     const q = guestSearch.trim().toLowerCase();
-    guests = guests.filter(g => g.name.toLowerCase().includes(q) || phoneDigits(g.phone).includes(q.replace(/\D/g,"")) || (g.rut||"").toLowerCase().includes(q.replace(/\./g,"")));
+    guests = guests.filter(g => guestMatchesSearch(g.name, g.phone, g.rut, q));
   }
   const cardsHtml = guests.length ? guests.map(guestCardHtml).join("") : `<div class="empty"><b>Aún no hay huéspedes</b>Aparecerán aquí automáticamente cuando registres reservas.</div>`;
 
@@ -1200,8 +1317,8 @@ function renderFinanzas(){
     const valTxt = (positive?"+":"−")+fmtCLP(Math.abs(m.balance)).replace("$","$ ");
     return `
       <rect x="${x}" y="${barY}" width="${barW}" height="${h}" rx="6" fill="${positive?"var(--good)":"var(--bad)"}"/>
-      ${m.balance!==0?`<text x="${x+barW/2}" y="${labelY}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink-soft)" font-family="Karla, sans-serif">${valTxt}</text>`:""}
-      <text x="${x+barW/2}" y="${chartH+18}" text-anchor="middle" font-size="11" fill="var(--ink-soft)" font-family="Karla, sans-serif">${m.label}</text>
+      ${m.balance!==0?`<text x="${x+barW/2}" y="${labelY}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink-soft)" font-family="Inter, system-ui, sans-serif">${valTxt}</text>`:""}
+      <text x="${x+barW/2}" y="${chartH+18}" text-anchor="middle" font-size="11" fill="var(--ink-soft)" font-family="Inter, system-ui, sans-serif">${m.label}</text>
     `;
   }).join("");
 
@@ -1267,12 +1384,19 @@ function openReservaModal(id, presetCheckIn){
   const editing = id ? state.reservas.find(r=>r.id===id) : null;
   const ci = editing ? editing.checkIn : (presetCheckIn || todayISO());
   const co = editing ? editing.checkOut : addDaysISO(ci,1);
-  const price = editing ? editing.pricePerNight : rateForGuests(2);
+  const price = editing ? editing.pricePerNight : rateForDate(ci, 2);
+  const mensajes = state.settings.mensajes || DEFAULT_MENSAJES;
   const html = `
     <div class="modal-head">
       <h3>${editing ? "Editar reserva" : "Nueva reserva"}</h3>
       <button class="icon-btn" data-action="closeModal">${ICONS.close}</button>
     </div>
+    ${editing ? `
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; padding:12px; background:var(--surface-2); border-radius:var(--radius-sm);">
+      <a class="btn btn-sm" href="${waLink(editing.phone, fillTemplate(mensajes.confirmacion, editing))}" target="_blank" rel="noopener">${ICONS.whatsapp} Confirmación</a>
+      <a class="btn btn-sm" href="${waLink(editing.phone, fillTemplate(mensajes.llegada, editing))}" target="_blank" rel="noopener">${ICONS.whatsapp} Llegada</a>
+      <a class="btn btn-sm" href="${waLink(editing.phone, fillTemplate(mensajes.salida, editing))}" target="_blank" rel="noopener">${ICONS.whatsapp} Salida</a>
+    </div>` : ""}
     <form id="reservaForm">
       <div class="field"><label>Nombre del huésped</label><input type="text" name="guestName" required value="${editing?escapeHtml(editing.guestName):""}"></div>
       <div class="field-row">
@@ -1284,7 +1408,7 @@ function openReservaModal(id, presetCheckIn){
         </div>
       </div>
       <div class="field-row">
-        <div class="field"><label>Llegada</label><input type="date" name="checkIn" required value="${ci}"></div>
+        <div class="field"><label>Llegada</label><input type="date" name="checkIn" id="checkInInput" required value="${ci}"></div>
         <div class="field"><label>Salida</label><input type="date" name="checkOut" required value="${co}"></div>
       </div>
       <div class="field-row">
@@ -1301,7 +1425,7 @@ function openReservaModal(id, presetCheckIn){
         <div class="field">
           <label>Precio por noche</label>
           <input type="number" name="pricePerNight" id="pricePerNightInput" min="0" step="1000" required value="${price}">
-          <div class="helper-text" id="priceHelper">Se sugiere solo según la cantidad de personas, igual que en la web. Puedes escribir otro valor si corresponde.</div>
+          <div class="helper-text" id="priceHelper">Se sugiere según la fecha y la cantidad de personas. Puedes escribir otro valor si corresponde.</div>
         </div>
         <div class="field"><label>Abono pagado</label><input type="number" name="deposit" min="0" step="1000" value="${editing?editing.deposit:0}"></div>
       </div>
@@ -1332,10 +1456,14 @@ function openReservaModal(id, presetCheckIn){
   });
   const numGuestsInput = document.getElementById("numGuestsInput");
   const pricePerNightInput = document.getElementById("pricePerNightInput");
-  numGuestsInput.addEventListener("input", ()=>{
+  const checkInInput = document.getElementById("checkInInput");
+  const updateSuggestedPrice = ()=>{
     const n = Math.max(1, Number(numGuestsInput.value)||1);
-    pricePerNightInput.value = rateForGuests(n);
-  });
+    const iso = checkInInput.value || todayISO();
+    pricePerNightInput.value = rateForDate(iso, n);
+  };
+  numGuestsInput.addEventListener("input", updateSuggestedPrice);
+  checkInInput.addEventListener("input", updateSuggestedPrice);
   document.getElementById("reservaForm").addEventListener("submit", async (e)=>{
     e.preventDefault();
     const fd = new FormData(e.target);
@@ -1523,6 +1651,17 @@ function setNotes(key, text){
 /* ============================= MODAL: AJUSTES ============================= */
 function openSettingsModal(){
   const theme = document.documentElement.dataset.theme || "system";
+  const temporadas = (state.settings.temporadas || []).slice().sort((a,b)=>(a.desde||"").localeCompare(b.desde||""));
+  const mensajes = state.settings.mensajes || DEFAULT_MENSAJES;
+  const temporadasHtml = temporadas.length ? temporadas.map(t=>`
+    <div class="pending-row">
+      <div><strong>${escapeHtml(t.nombre||"Temporada")}</strong><div class="section-sub">${fmtDateShort(t.desde)} → ${fmtDateShort(t.hasta)}</div></div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="pill pill-accent">${fmtCLP(t.precio)}</span>
+        <button class="btn btn-sm btn-danger" data-action="deleteTemporada" data-id="${t.id}" title="Eliminar">${ICONS.trash}</button>
+      </div>
+    </div>
+  `).join("") : `<p class="helper-text">Todavía no agregas ninguna.</p>`;
   const html = `
     <div class="modal-head"><h3>Ajustes</h3><button class="icon-btn" data-action="closeModal">${ICONS.close}</button></div>
 
@@ -1537,11 +1676,42 @@ function openSettingsModal(){
 
     <div class="settings-block">
       <h4>Respaldo</h4>
-      <p class="helper-text" style="margin-bottom:10px;">Los datos se guardan solo en esta tablet. Exporta un respaldo de vez en cuando para no perderlos.</p>
-      <div style="display:flex; gap:10px;">
-        <button class="btn btn-block" data-action="exportBackup">${ICONS.download} Exportar</button>
+      <p class="helper-text" style="margin-bottom:10px;">Tus datos se guardan automáticamente en la nube y se sincronizan entre dispositivos. Igual conviene exportar un respaldo de vez en cuando.</p>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <button class="btn btn-block" data-action="exportBackup">${ICONS.download} Exportar respaldo</button>
         <button class="btn btn-block" data-action="importBackup">${ICONS.upload} Importar</button>
       </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-block" data-action="exportReservasCsv">${ICONS.download} Reservas (Excel)</button>
+        <button class="btn btn-block" data-action="exportGastosCsv">${ICONS.download} Gastos (Excel)</button>
+      </div>
+    </div>
+
+    <div class="settings-block">
+      <h4>Tarifas por temporada</h4>
+      <p class="helper-text" style="margin-bottom:10px;">Define un rango de fechas con precio fijo por noche (ej. verano). Si la llegada cae en ese rango, se sugiere ese precio en vez del de la cantidad de personas. Siempre se puede escribir otro a mano.</p>
+      ${temporadasHtml}
+      <div class="field-row" style="margin-top:12px;">
+        <div class="field"><label>Nombre</label><input type="text" id="temporadaNombre" placeholder="Ej: Verano"></div>
+        <div class="field"><label>Precio por noche</label><input type="number" id="temporadaPrecio" min="0" step="1000"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Desde</label><input type="date" id="temporadaDesde"></div>
+        <div class="field"><label>Hasta</label><input type="date" id="temporadaHasta"></div>
+      </div>
+      <button class="btn btn-block" data-action="addTemporada">${ICONS.plus} Agregar temporada</button>
+    </div>
+
+    <div class="settings-block">
+      <h4>Mensajes de WhatsApp</h4>
+      <p class="helper-text" style="margin-bottom:10px;">Se usan en los botones de cada reserva. Puedes usar {nombre}, {checkin}, {checkout} y {noches}: se completan solos al enviar.</p>
+      <label style="display:block; font-size:.8rem; font-weight:600; color:var(--ink-soft); margin-bottom:6px;">Confirmación</label>
+      <textarea id="mensajeConfirmacion" style="width:100%; min-height:80px; border:1px solid var(--line); border-radius:var(--radius-sm); padding:10px; background:var(--surface-2); margin-bottom:12px;">${escapeHtml(mensajes.confirmacion)}</textarea>
+      <label style="display:block; font-size:.8rem; font-weight:600; color:var(--ink-soft); margin-bottom:6px;">Instrucciones de llegada</label>
+      <textarea id="mensajeLlegada" style="width:100%; min-height:80px; border:1px solid var(--line); border-radius:var(--radius-sm); padding:10px; background:var(--surface-2); margin-bottom:12px;">${escapeHtml(mensajes.llegada)}</textarea>
+      <label style="display:block; font-size:.8rem; font-weight:600; color:var(--ink-soft); margin-bottom:6px;">Instrucciones de salida</label>
+      <textarea id="mensajeSalida" style="width:100%; min-height:80px; border:1px solid var(--line); border-radius:var(--radius-sm); padding:10px; background:var(--surface-2);">${escapeHtml(mensajes.salida)}</textarea>
+      <button class="btn btn-primary btn-block" style="margin-top:10px" data-action="saveMensajes">Guardar mensajes</button>
     </div>
 
     <div class="settings-block">
@@ -1579,6 +1749,38 @@ function exportBackup(){
   toast("Respaldo descargado.");
 }
 
+function csvEscape(v){
+  const s = v==null ? "" : String(v);
+  if(/[";\n]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function downloadCsv(filename, rows){
+  const csv = rows.map(row=>row.map(csvEscape).join(";")).join("\r\n");
+  const blob = new Blob(["﻿"+csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function exportReservasCsv(){
+  const rows = [["Huésped","Teléfono","Llegada","Salida","Noches","Personas","Estado","Precio por noche","Total","Abono","Saldo","Notas"]];
+  state.reservas.slice().sort((a,b)=>a.checkIn.localeCompare(b.checkIn)).forEach(r=>{
+    rows.push([r.guestName, r.phone, r.checkIn, r.checkOut, nightsBetween(r.checkIn,r.checkOut), r.numGuests,
+      statusLabel(r.status), r.pricePerNight||0, r.totalPrice||0, r.deposit||0, reservaBalance(r), r.notes||""]);
+  });
+  downloadCsv("reservas-casa-olmue-"+todayISO()+".csv", rows);
+  toast("Reservas exportadas.");
+}
+function exportGastosCsv(){
+  const rows = [["Fecha","Descripción","Categoría","Monto"]];
+  state.gastos.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(g=>{
+    rows.push([g.date, g.description, g.category, g.amount||0]);
+  });
+  downloadCsv("gastos-casa-olmue-"+todayISO()+".csv", rows);
+  toast("Gastos exportados.");
+}
+
 function importBackup(){ document.getElementById("importInput").click(); }
 
 document.getElementById("importInput").addEventListener("change", (e)=>{
@@ -1610,6 +1812,35 @@ function saveChecklist(){
   state.checklistTemplate = tasks.length ? tasks : DEFAULT_CHECKLIST.slice();
   saveState();
   toast("Checklist guardada.");
+}
+
+function addTemporada(){
+  const nombre = document.getElementById("temporadaNombre").value.trim();
+  const precio = Number(document.getElementById("temporadaPrecio").value);
+  const desde = document.getElementById("temporadaDesde").value;
+  const hasta = document.getElementById("temporadaHasta").value;
+  if(!desde || !hasta){ toast("Elige la fecha de inicio y de término."); return; }
+  if(hasta < desde){ toast("La fecha de término no puede ser antes que la de inicio."); return; }
+  if(!precio || precio<=0){ toast("Ingresa un precio por noche válido."); return; }
+  state.settings.temporadas = (state.settings.temporadas||[]).concat([{ id: uid("temp"), nombre: nombre||"Temporada", desde, hasta, precio }]);
+  saveState();
+  toast("Temporada agregada.");
+  openSettingsModal();
+}
+function deleteTemporada(id){
+  state.settings.temporadas = (state.settings.temporadas||[]).filter(t=>t.id!==id);
+  saveState();
+  toast("Temporada eliminada.");
+  openSettingsModal();
+}
+function saveMensajes(){
+  state.settings.mensajes = {
+    confirmacion: document.getElementById("mensajeConfirmacion").value.trim() || DEFAULT_MENSAJES.confirmacion,
+    llegada: document.getElementById("mensajeLlegada").value.trim() || DEFAULT_MENSAJES.llegada,
+    salida: document.getElementById("mensajeSalida").value.trim() || DEFAULT_MENSAJES.salida,
+  };
+  saveState();
+  toast("Mensajes guardados.");
 }
 
 function wipeData(){
@@ -1661,7 +1892,8 @@ document.getElementById("content").addEventListener("click", (e)=>{
   if(!el) return;
   if(el.dataset.stop) e.stopPropagation();
   const action = el.dataset.action;
-  if(action==="prevMonth"){ calState.month--; if(calState.month<0){calState.month=11; calState.year--;} calState.selected=null; render(); }
+  if(action==="switchTab"){ switchTab(el.dataset.tab); }
+  else if(action==="prevMonth"){ calState.month--; if(calState.month<0){calState.month=11; calState.year--;} calState.selected=null; render(); }
   else if(action==="nextMonth"){ calState.month++; if(calState.month>11){calState.month=0; calState.year++;} calState.selected=null; render(); }
   else if(action==="pickDay"){ calState.selected = el.dataset.iso===calState.selected ? null : el.dataset.iso; render(); }
   else if(action==="newFromDay"){ openReservaModal(null, el.dataset.iso); }
@@ -1681,7 +1913,15 @@ document.getElementById("content").addEventListener("click", (e)=>{
 });
 document.getElementById("content").addEventListener("input", (e)=>{
   if(e.target.id==="guestSearchInput"){ guestSearch = e.target.value; renderGuestListOnly(); }
+  else if(e.target.id==="reservaSearchInput"){ reservaSearch = e.target.value; renderReservaListOnly(); }
 });
+function renderReservaListOnly(){
+  // evita perder el foco del buscador al re-renderizar todo
+  const stack = document.querySelector("#content .stack");
+  if(!stack) return;
+  const list = filteredReservas();
+  stack.innerHTML = list.length ? list.map(reservaCardHtml).join("") : `<div class="empty"><b>Sin resultados</b>Prueba con otro nombre, número o filtro.</div>`;
+}
 function renderGuestListOnly(){
   // evita perder el foco del buscador al re-renderizar todo
   const stack = document.querySelector("#content .stack");
@@ -1689,7 +1929,7 @@ function renderGuestListOnly(){
     let g = computeGuestStats();
     if(guestSearch.trim()){
       const q = guestSearch.trim().toLowerCase();
-      g = g.filter(x => x.name.toLowerCase().includes(q) || phoneDigits(x.phone).includes(q.replace(/\D/g,"")) || (x.rut||"").toLowerCase().includes(q.replace(/\./g,"")));
+      g = g.filter(x => guestMatchesSearch(x.name, x.phone, x.rut, q));
     }
     return g;
   })();
@@ -1708,7 +1948,12 @@ document.getElementById("modal").addEventListener("click", (e)=>{
   if(action==="closeModal") closeModal();
   else if(action==="exportBackup") exportBackup();
   else if(action==="importBackup") importBackup();
+  else if(action==="exportReservasCsv") exportReservasCsv();
+  else if(action==="exportGastosCsv") exportGastosCsv();
   else if(action==="saveChecklist") saveChecklist();
+  else if(action==="addTemporada") addTemporada();
+  else if(action==="deleteTemporada") deleteTemporada(el.dataset.id);
+  else if(action==="saveMensajes") saveMensajes();
   else if(action==="wipeData") wipeData();
   else if(action==="setTheme") setTheme(el.dataset.theme);
   else if(action==="resetOwnPassword") resetOwnPassword();
@@ -1817,7 +2062,7 @@ function subscribeSolicitudes(){
   fbDb.collection("solicitudes").orderBy("creadoEn","desc").onSnapshot(snap=>{
     solicitudesCache = snap.docs.map(d=>Object.assign({id:d.id}, d.data()));
     renderSolicitudesBadge();
-    if(currentTab==="solicitudes") render();
+    if(currentTab==="solicitudes" || currentTab==="resumen") render();
   }, err=>console.error(err));
 }
 
@@ -1833,7 +2078,7 @@ async function acceptSolicitud(id){
   const s = solicitudesCache.find(x=>x.id===id);
   if(!s) return;
   const nights = nightsBetween(s.checkIn, s.checkOut);
-  const pricePerNight = state.settings.defaultPrice || 0;
+  const pricePerNight = rateForDate(s.checkIn, s.numGuests || 2);
   const now = new Date().toISOString();
   const newId = uid("r");
   const fields = {
@@ -1936,7 +2181,7 @@ function bootApp(user){
   const savedTheme = localStorage.getItem("casaOlmueTheme");
   if(savedTheme && savedTheme!=="system") document.documentElement.dataset.theme = savedTheme;
   renderShell();
-  switchTab("calendario");
+  switchTab("resumen");
   initCloudSync();
 }
 
