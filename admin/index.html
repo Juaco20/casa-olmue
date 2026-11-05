@@ -615,6 +615,13 @@ function pad(n){ return n<10 ? "0"+n : ""+n; }
 function toDate(iso){ const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d); }
 function nightsBetween(a,b){ return Math.round((toDate(b)-toDate(a))/86400000); }
 function addDaysISO(iso,n){ const d=toDate(iso); d.setDate(d.getDate()+n); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+// Mismos tramos de precio que el calendario del landing (index.html → rateForGuests).
+// Si cambias un valor acá, cámbialo también allá para que no queden desincronizados.
+function rateForGuests(n){
+  if(n<=2) return 120000;
+  if(n<=4) return 160000;
+  return 180000;
+}
 function fmtCLP(n){ n = Number(n)||0; return new Intl.NumberFormat("es-CL",{style:"currency",currency:"CLP",maximumFractionDigits:0}).format(n); }
 function fmtDateShort(iso){ if(!iso) return "—"; return new Intl.DateTimeFormat("es-CL",{weekday:"short",day:"numeric",month:"short"}).format(toDate(iso)).replace(".", ""); }
 function fmtDateLong(iso){ if(!iso) return "—"; return new Intl.DateTimeFormat("es-CL",{weekday:"long",day:"numeric",month:"long"}).format(toDate(iso)); }
@@ -1259,7 +1266,7 @@ function openReservaModal(id, presetCheckIn){
   const editing = id ? state.reservas.find(r=>r.id===id) : null;
   const ci = editing ? editing.checkIn : (presetCheckIn || todayISO());
   const co = editing ? editing.checkOut : addDaysISO(ci,1);
-  const price = editing ? editing.pricePerNight : (state.settings.defaultPrice || "");
+  const price = editing ? editing.pricePerNight : rateForGuests(2);
   const html = `
     <div class="modal-head">
       <h3>${editing ? "Editar reserva" : "Nueva reserva"}</h3>
@@ -1280,7 +1287,7 @@ function openReservaModal(id, presetCheckIn){
         <div class="field"><label>Salida</label><input type="date" name="checkOut" required value="${co}"></div>
       </div>
       <div class="field-row">
-        <div class="field"><label>Personas</label><input type="number" name="numGuests" min="1" max="20" required value="${editing?editing.numGuests:2}"></div>
+        <div class="field"><label>Personas</label><input type="number" name="numGuests" id="numGuestsInput" min="1" max="20" required value="${editing?editing.numGuests:2}"></div>
         <div class="field"><label>Estado</label>
           <select name="status">
             <option value="confirmada" ${editing&&editing.status==="confirmada"?"selected":""}>Confirmada</option>
@@ -1290,7 +1297,11 @@ function openReservaModal(id, presetCheckIn){
         </div>
       </div>
       <div class="field-row">
-        <div class="field"><label>Precio por noche</label><input type="number" name="pricePerNight" min="0" step="1000" required value="${price}"></div>
+        <div class="field">
+          <label>Precio por noche</label>
+          <input type="number" name="pricePerNight" id="pricePerNightInput" min="0" step="1000" required value="${price}">
+          <div class="helper-text" id="priceHelper">Se sugiere solo según la cantidad de personas, igual que en la web. Puedes escribir otro valor si corresponde.</div>
+        </div>
         <div class="field"><label>Abono pagado</label><input type="number" name="deposit" min="0" step="1000" value="${editing?editing.deposit:0}"></div>
       </div>
       <div class="field"><label>Notas</label><textarea name="notes" placeholder="Ej: llega en auto, alergia a mascotas, pidió cuna...">${editing?escapeHtml(editing.notes||""):""}</textarea></div>
@@ -1317,6 +1328,12 @@ function openReservaModal(id, presetCheckIn){
       rutHelper.textContent = "Ese RUT no parece válido — revísalo.";
       rutHelper.style.color = "var(--bad)";
     }
+  });
+  const numGuestsInput = document.getElementById("numGuestsInput");
+  const pricePerNightInput = document.getElementById("pricePerNightInput");
+  numGuestsInput.addEventListener("input", ()=>{
+    const n = Math.max(1, Number(numGuestsInput.value)||1);
+    pricePerNightInput.value = rateForGuests(n);
   });
   document.getElementById("reservaForm").addEventListener("submit", async (e)=>{
     e.preventDefault();
