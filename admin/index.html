@@ -25,11 +25,17 @@
     --good:#3F6B4A; --good-soft:#E7EFE3;
     --warn:#946B2D; --warn-soft:#F6EDDB;
     --bad:#9C4A3C; --bad-soft:#F5E4DE;
+    --tag1:#3C5A42; --tag1-soft:#E3E9DD;
+    --tag2:#A1623F; --tag2-soft:#F3E5DC;
+    --tag3:#8A6B22; --tag3-soft:#F1EAD5;
+    --tag4:#39647C; --tag4-soft:#E1EAEE;
+    --tag5:#7D4C72; --tag5-soft:#F0E3EC;
     --shadow:0 1px 2px rgba(20,19,15,.03), 0 20px 46px -28px rgba(20,19,15,.22);
     --radius:7px; --radius-sm:4px;
     --ease:cubic-bezier(.16,.8,.3,1);
     --font-display:'Fraunces',Georgia,'Times New Roman',serif;
     --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --sidebar-w:252px;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
@@ -41,6 +47,11 @@
       --good:#86AE8B; --good-soft:#203120;
       --warn:#DAAB62; --warn-soft:#3A2D17;
       --bad:#DB9080; --bad-soft:#3B251D;
+      --tag1:#86AE8B; --tag1-soft:#223226;
+      --tag2:#D99A74; --tag2-soft:#372819;
+      --tag3:#CBB15F; --tag3-soft:#332C16;
+      --tag4:#7FACC4; --tag4-soft:#1F2E34;
+      --tag5:#C891BC; --tag5-soft:#32242F;
       --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -16px rgba(0,0,0,.6);
       color-scheme: dark;
     }
@@ -53,6 +64,11 @@
     --good:#86AE8B; --good-soft:#203120;
     --warn:#DAAB62; --warn-soft:#3A2D17;
     --bad:#DB9080; --bad-soft:#3B251D;
+    --tag1:#86AE8B; --tag1-soft:#223226;
+    --tag2:#D99A74; --tag2-soft:#372819;
+    --tag3:#CBB15F; --tag3-soft:#332C16;
+    --tag4:#7FACC4; --tag4-soft:#1F2E34;
+    --tag5:#C891BC; --tag5-soft:#32242F;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -16px rgba(0,0,0,.6);
     color-scheme: dark;
   }
@@ -114,7 +130,32 @@
   .tab-btn:active{opacity:.75;}
   .tab-badge{
     background:var(--bad); color:#fff; font-size:.68rem; font-weight:800; border-radius:999px;
-    min-width:17px; height:17px; padding:0 5px; display:inline-flex; align-items:center; justify-content:center; line-height:1;
+    min-width:17px; height:17px; padding:0 5px; display:inline-flex; align-items:center; justify-content:center; line-height:1; margin-left:auto;
+  }
+
+  /* ---------- Avatars ---------- */
+  .avatar{
+    width:38px; height:38px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:600; font-size:.92rem;
+    letter-spacing:.01em;
+  }
+  .avatar-sm{ width:30px; height:30px; font-size:.78rem; }
+  .with-avatar{ display:flex; align-items:center; gap:12px; }
+
+  /* ---------- Tile icon badges ---------- */
+  .tile{ display:flex; gap:12px; align-items:flex-start; }
+  .tile-icon{
+    width:34px; height:34px; border-radius:9px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .tile-icon svg{ width:18px; height:18px; }
+  .tile-body{ min-width:0; }
+
+  /* ---------- Card weight ---------- */
+  .card{ transition:box-shadow .15s var(--ease), border-color .15s var(--ease); }
+  @media(hover:hover){
+    .res-card:hover, .card.hoverable:hover{ box-shadow:0 2px 4px rgba(20,19,15,.05), 0 24px 48px -26px rgba(20,19,15,.3); }
   }
   .solicitud-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-sm); box-shadow:var(--shadow); padding:16px; margin-bottom:12px;}
   .solicitud-card .sol-dates{font-weight:700; font-size:.98rem; margin-bottom:2px;}
@@ -123,6 +164,21 @@
   .solicitud-actions{display:flex; gap:10px;}
 
   main{padding:18px 16px 8px; max-width:920px; margin:0 auto;}
+
+  /* ---------- Sidebar (tablet landscape / desktop) ---------- */
+  @media(min-width:860px){
+    .topbar{ padding-left:28px; padding-right:28px; }
+    .tabs{
+      position:fixed; left:0; top:calc(66px + env(safe-area-inset-top)); bottom:0; z-index:19;
+      width:var(--sidebar-w); flex-direction:column; align-items:stretch; overflow-y:auto; overflow-x:hidden;
+      padding:16px 12px; gap:3px;
+      background:var(--surface); border-right:1px solid var(--line); border-bottom:none;
+    }
+    .tab-btn{ padding:11px 14px; font-size:.92rem; }
+    main{ margin:0 0 0 var(--sidebar-w); max-width:760px; padding-left:28px; padding-right:28px; }
+  }
+  @media(min-width:1180px){ main{ max-width:960px; } }
+
   .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
   .section-head h2{font-size:1.25rem; font-weight:500;}
   .section-sub{color:var(--ink-soft); font-size:.85rem;}
@@ -261,7 +317,7 @@
   .check-row.done span{color:var(--ink-faint); text-decoration:line-through;}
 
   /* ---------- Ingresos ---------- */
-  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:18px;}
+  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-bottom:18px;}
   .tile{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-sm); padding:14px;}
   .tile .label{font-size:.76rem; color:var(--ink-soft); font-weight:600;}
   .tile .value{font-family:var(--font-display); font-size:1.4rem; font-weight:500; margin-top:4px; font-variant-numeric:tabular-nums;}
@@ -652,6 +708,22 @@ function fmtCLP(n){ n = Number(n)||0; return new Intl.NumberFormat("es-CL",{styl
 function fmtDateShort(iso){ if(!iso) return "—"; return new Intl.DateTimeFormat("es-CL",{weekday:"short",day:"numeric",month:"short"}).format(toDate(iso)).replace(".", ""); }
 function fmtDateLong(iso){ if(!iso) return "—"; return new Intl.DateTimeFormat("es-CL",{weekday:"long",day:"numeric",month:"long"}).format(toDate(iso)); }
 function firstName(full){ return (full||"").trim().split(/\s+/)[0] || "—"; }
+const AVATAR_TAGS = ["tag1","tag2","tag3","tag4","tag5"];
+function initialsOf(full){
+  const parts = (full||"").trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return "?";
+  const a = parts[0][0] || "";
+  const b = parts.length>1 ? (parts[parts.length-1][0]||"") : "";
+  return (a+b).toUpperCase();
+}
+function avatarHtml(name, size){
+  const str = (name||"").trim();
+  let hash = 0;
+  for(let i=0;i<str.length;i++) hash = (hash*31 + str.charCodeAt(i)) >>> 0;
+  const tag = AVATAR_TAGS[hash % AVATAR_TAGS.length];
+  const cls = size==="sm" ? "avatar avatar-sm" : "avatar";
+  return `<div class="${cls}" style="background:var(--${tag}-soft); color:var(--${tag})">${escapeHtml(initialsOf(str))}</div>`;
+}
 function escapeHtml(s){ return (s==null?"":String(s)).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function phoneDigits(phone){ return (phone||"").replace(/\D/g,""); }
 function phoneKey(phone){
@@ -931,9 +1003,12 @@ function renderResumen(){
     const isToday = u.iso===today;
     return `
       <div class="pending-row">
-        <div>
-          <strong>${escapeHtml(u.r.guestName)}</strong>
-          <div class="section-sub">${label} ${isToday?"hoy":fmtDateShort(u.iso)} · ${u.r.numGuests} pers.</div>
+        <div class="with-avatar">
+          ${avatarHtml(u.r.guestName, "sm")}
+          <div>
+            <strong>${escapeHtml(u.r.guestName)}</strong>
+            <div class="section-sub">${label} ${isToday?"hoy":fmtDateShort(u.iso)} · ${u.r.numGuests} pers.</div>
+          </div>
         </div>
         <a class="btn btn-sm" href="${waLink(u.r.phone)}" target="_blank" rel="noopener" data-stop="1">${ICONS.whatsapp} WhatsApp</a>
       </div>`;
@@ -953,10 +1028,10 @@ function renderResumen(){
     <div class="section-head"><h2>Resumen</h2></div>
     ${alertsHtml}
     <div class="tiles">
-      <div class="tile"><div class="label">Ingresos este mes</div><div class="value">${fmtCLP(thisMonth.income)}</div></div>
-      <div class="tile"><div class="label">Ocupación este mes</div><div class="value">${occ.pct}%</div></div>
-      <div class="tile"><div class="label">Por cobrar</div><div class="value">${fmtCLP(pendingTotal)}</div></div>
-      <div class="tile"><div class="label">Solicitudes nuevas</div><div class="value">${solPendientes}</div></div>
+      <div class="tile"><div class="tile-icon" style="background:var(--good-soft); color:var(--good)">${ICONS.chart}</div><div class="tile-body"><div class="label">Ingresos este mes</div><div class="value">${fmtCLP(thisMonth.income)}</div></div></div>
+      <div class="tile"><div class="tile-icon" style="background:var(--tag4-soft); color:var(--tag4)">${ICONS.calendar}</div><div class="tile-body"><div class="label">Ocupación este mes</div><div class="value">${occ.pct}%</div></div></div>
+      <div class="tile"><div class="tile-icon" style="background:var(--warn-soft); color:var(--warn)">${ICONS.receipt}</div><div class="tile-body"><div class="label">Por cobrar</div><div class="value">${fmtCLP(pendingTotal)}</div></div></div>
+      <div class="tile"><div class="tile-icon" style="background:var(--tag2-soft); color:var(--tag2)">${ICONS.inbox}</div><div class="tile-body"><div class="label">Solicitudes nuevas</div><div class="value">${solPendientes}</div></div></div>
     </div>
     <div class="card">
       <h3 style="font-size:.95rem; margin-bottom:10px;">Próximos 7 días</h3>
@@ -1068,9 +1143,12 @@ function reservaCardHtml(r){
   const bal = reservaBalance(r);
   return `<div class="card res-card" data-action="editReserva" data-id="${r.id}">
     <div class="res-top">
-      <div>
-        <div class="res-name">${escapeHtml(r.guestName)}</div>
-        <div class="res-dates">${fmtDateShort(r.checkIn)} → ${fmtDateShort(r.checkOut)} · ${n} noche${n===1?"":"s"}</div>
+      <div class="with-avatar">
+        ${avatarHtml(r.guestName)}
+        <div>
+          <div class="res-name">${escapeHtml(r.guestName)}</div>
+          <div class="res-dates">${fmtDateShort(r.checkIn)} → ${fmtDateShort(r.checkOut)} · ${n} noche${n===1?"":"s"}</div>
+        </div>
       </div>
       <span class="pill ${statusPillClass(r.status)}">${statusLabel(r.status)}</span>
     </div>
@@ -1157,9 +1235,12 @@ function guestCardHtml(g){
     : `${g.avgRating.toFixed(1)} · calificación general`;
   return `<div class="card">
     <div class="guest-top">
-      <div>
-        <div class="res-name">${escapeHtml(g.name)}</div>
-        <div class="res-dates">${escapeHtml(g.phone||"")}${g.rut?" · RUT "+escapeHtml(formatRutDisplay(g.rut)):""}</div>
+      <div class="with-avatar">
+        ${avatarHtml(g.name)}
+        <div>
+          <div class="res-name">${escapeHtml(g.name)}</div>
+          <div class="res-dates">${escapeHtml(g.phone||"")}${g.rut?" · RUT "+escapeHtml(formatRutDisplay(g.rut)):""}</div>
+        </div>
       </div>
       <a class="btn btn-sm" href="${waLink(g.phone)}" target="_blank" rel="noopener">${ICONS.whatsapp}</a>
     </div>
@@ -1349,10 +1430,10 @@ function renderFinanzas(){
   return `
     <div class="section-head"><h2>Finanzas</h2></div>
     <div class="tiles">
-      <div class="tile"><div class="label">Ingresos este mes</div><div class="value">${fmtCLP(thisMonth.income)}</div></div>
-      <div class="tile"><div class="label">Gastos este mes</div><div class="value">${fmtCLP(thisMonth.expense)}</div></div>
-      <div class="tile"><div class="label">Balance este mes</div><div class="value" style="color:${thisMonth.balance>=0?"var(--good)":"var(--bad)"}">${thisMonth.balance>=0?"+":"−"}${fmtCLP(Math.abs(thisMonth.balance))}</div></div>
-      <div class="tile"><div class="label">Por cobrar</div><div class="value">${fmtCLP(pendingTotal)}</div></div>
+      <div class="tile"><div class="tile-icon" style="background:var(--good-soft); color:var(--good)">${ICONS.upload}</div><div class="tile-body"><div class="label">Ingresos este mes</div><div class="value">${fmtCLP(thisMonth.income)}</div></div></div>
+      <div class="tile"><div class="tile-icon" style="background:var(--tag2-soft); color:var(--tag2)">${ICONS.download}</div><div class="tile-body"><div class="label">Gastos este mes</div><div class="value">${fmtCLP(thisMonth.expense)}</div></div></div>
+      <div class="tile"><div class="tile-icon" style="background:var(--tag4-soft); color:var(--tag4)">${ICONS.scale}</div><div class="tile-body"><div class="label">Balance este mes</div><div class="value" style="color:${thisMonth.balance>=0?"var(--good)":"var(--bad)"}">${thisMonth.balance>=0?"+":"−"}${fmtCLP(Math.abs(thisMonth.balance))}</div></div></div>
+      <div class="tile"><div class="tile-icon" style="background:var(--warn-soft); color:var(--warn)">${ICONS.receipt}</div><div class="tile-body"><div class="label">Por cobrar</div><div class="value">${fmtCLP(pendingTotal)}</div></div></div>
     </div>
     <div class="card chart-wrap">
       <h3 style="font-size:.95rem; margin-bottom:2px;">Balance neto — últimos 6 meses</h3>
